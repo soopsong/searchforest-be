@@ -24,10 +24,13 @@ public class OnlineSecurityConfigure {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .formLogin(
+                .csrf(csrf -> csrf.disable())
+                .formLogin(//login -> login
+//                        .loginPage("/login")
+//                        .defaultSuccessUrl("/user", true)
+//                        .permitAll()
                         Customizer.withDefaults()
-                        //login.loginPage("/login").permitAll()
-                                )
+                )
                 .logout(logout -> logout.logoutUrl("/logout"))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/").permitAll()

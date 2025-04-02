@@ -17,6 +17,14 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
         format_sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha

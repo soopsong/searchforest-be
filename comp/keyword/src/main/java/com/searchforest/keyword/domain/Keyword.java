@@ -25,7 +25,6 @@ public class Keyword {
 
     private String text;
 
-    private URL url;
     // Todo
     // depth 관련 설정을 어떻게 할건지?
     // String list 가 아니라 subKeyword list 로 하는게 나으려나?
