@@ -39,7 +39,7 @@ public class KeywordService {
             return null;
         }
 
-        list = keyword.getSublist().isEmpty() ? null : keyword.getSublist();
+//        list = keyword.getSublist().isEmpty() ? null : keyword.getSublist();
 
         return list;
     }
@@ -72,11 +72,11 @@ public class KeywordService {
     //Todo DB에 result list 저장.
     public void saveResult(String text, List<String> list) {
 
-        Keyword keyword = Keyword.builder()
-                        .text(text)
-                        .sublist(list)
-                        .build();
+//        Keyword keyword = Keyword.builder()
+//                        .text(text)
+//                        .sublist(list)
+//                        .build();
 
-        keywordRepository.save(keyword);
+//        keywordRepository.save(keyword);
     }
 }
