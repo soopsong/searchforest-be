@@ -1,0 +1,90 @@
+buildscript {
+    ext {
+        springVersion = "3.4.4"
+        bootPlugin = "org.springframework.boot"
+        lombokLib = "org.projectlombok:lombok"
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("${bootPlugin}:spring-boot-gradle-plugin:${springVersion}")
+    }
+}
+
+allprojects {
+    group = 'com.searchforest'
+    version = '1.0.0'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-data-neo4j'
+
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+
+        compileOnly lombokLib
+        annotationProcessor lombokLib
+
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        runtimeOnly 'com.h2database:h2'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.springframework.security:spring-security-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}
+
+// 하위 프로젝트 동적 구성
+["comp", "test", "web"].each { category ->
+    def subProjectDir = new File(rootDir, category)
+    if (subProjectDir.exists()) {
+        subProjectDir.eachDir { dir ->
+            def projectName = ":${category}-${dir.name}"
+            project(projectName) {
+                bootJar.enabled = false
+                jar.enabled = true
+            }
+        }
+    }
+}
+
+["server"].each { category ->
+    def subProjectDir = new File(rootDir, category)
+    if (subProjectDir.exists()) {
+        subProjectDir.eachDir { dir ->
+            def projectName = ":${category}-${dir.name}"
+            project(projectName) {
+                // 추가 설정 가능
+            }
+        }
+    }
+}
