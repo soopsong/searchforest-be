@@ -31,5 +31,5 @@ public class Keyword {
     // String list 가 아니라 subKeyword list 로 하는게 나으려나?
     // subKeyword 는 String list 를 갖는 거지.
 
-    private List<String> sublist;
+//    private List<String> sublist;
 }
