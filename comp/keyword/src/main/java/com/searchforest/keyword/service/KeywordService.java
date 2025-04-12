@@ -47,7 +47,7 @@ public class KeywordService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // {keyword: ~~~} 형식
-        String requestBody = "{ \"keyword\": \"" + keyword + "\" }";
+        String requestBody = "{ \"keyword\": \"" + keyword + "\", \"mode\": \"text\" }";
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 

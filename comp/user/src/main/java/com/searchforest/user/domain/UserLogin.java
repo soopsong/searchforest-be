@@ -1,4 +1,4 @@
-package com.searchforest.web.config;
+package com.searchforest.user.domain;
 
 
 import lombok.AllArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.data.annotation.Id;
 @Builder
 public class UserLogin {
 
+    private String username;
     private String email;
     private String password;
 }
