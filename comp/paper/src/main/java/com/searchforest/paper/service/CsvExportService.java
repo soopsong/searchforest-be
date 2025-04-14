@@ -18,24 +18,24 @@ import java.util.List;
 public class CsvExportService {
     private final PaperRepository paperRepository;
 
-    public void exportToCsv(String filePath) throws IOException {
-        List<Paper> papers = paperRepository.findAll();
-
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
-             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                     .withHeader("arxivId", "title", "abstractText", "categories", "published"))) {
-
-            for (Paper paper : papers) {
-                csvPrinter.printRecord(
-                        paper.getArxivId(),
-                        paper.getTitle(),
-                        paper.getAbstractText(),
-                        String.join(",", paper.getCategories()),
-                        paper.getPublished()
-                );
-            }
-
-            csvPrinter.flush();
-        }
-    }
+//    public void exportToCsv(String filePath) throws IOException {
+//        List<Paper> papers = paperRepository.findAll();
+//
+//        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(filePath));
+//             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+//                     .withHeader("arxivId", "title", "abstractText", "categories", "published"))) {
+//
+//            for (Paper paper : papers) {
+//                csvPrinter.printRecord(
+//                        paper.getArxivId(),
+//                        paper.getTitle(),
+//                        paper.getAbstractText(),
+//                        String.join(",", paper.getCategories()),
+//                        paper.getPublished()
+//                );
+//            }
+//
+//            csvPrinter.flush();
+//        }
+//    }
 }
