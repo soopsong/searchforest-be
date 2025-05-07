@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,27 +39,23 @@ public class KeywordService {
         return keyword;
     }
 
-    public Keyword requestToAIServer(String keyword) {
+    public Keyword requestToAIServer(List<String> messages) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // {keyword: ~~~} 형식
-        String requestBody = "{ \"keyword\": \"" + keyword + "\", \"mode\": \"text\" }";
+        // JSON 생성
+        Map<String, Object> body = new HashMap<>();
+        body.put("messages", messages);
+        body.put("mode", "text");
 
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-        // Todo
-        // AI server 에 keyword 전송해서 response 받아오기
-        // response 형식 정해지는 대로 fix.
-        // 일단은 String[]으로 받아서 list 로 return
         ResponseEntity<Keyword> responseEntity = restTemplate.postForEntity(
                 aiServerUrl,
                 requestEntity,
                 Keyword.class
         );
 
-
-        // responseEntity list 로 변환해서 전송
         return responseEntity.getBody();
     }
 

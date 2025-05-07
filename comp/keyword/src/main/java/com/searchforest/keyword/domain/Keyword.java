@@ -26,6 +26,7 @@ public class Keyword {
     private Long id;
 
     private String text;
+    private int weight;
 
     // Todo
     // depth 관련 설정을 어떻게 할건지?

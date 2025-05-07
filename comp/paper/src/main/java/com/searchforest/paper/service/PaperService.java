@@ -1,45 +1,35 @@
 package com.searchforest.paper.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.repository.PaperRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
-import java.time.Year;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PaperService {
 
-
     private final PaperRepository paperRepository;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     public Paper getCachedList(String title) {
         return paperRepository.findByTitle(title).orElse(null);
     }
 
-    public void save(Paper aiResults) {
-        paperRepository.save(aiResults);
-    }
+    // Todo
+    // 저장해야하나?
+//    public void save(List<Paper> aiResults) {
+//        paperRepository.saveAll(aiResults);
+//    }
 
-    public Paper requestToAIServer(String keyword) {
+    public List<Paper> requestToAIServer(String keyword) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -48,21 +38,19 @@ public class PaperService {
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        // Todo
-        // AI server 에 keyword 전송해서 response 받아오기
-        // response 형식 정해지는 대로 fix.
-        String aiServerUrl = "";
+        // AI 서버 주소
+        String aiServerUrl = "http://your-ai-server-url.com/search";
 
-        ResponseEntity<Paper> responseEntity = restTemplate.postForEntity(
+        ResponseEntity<List<Paper>> responseEntity = restTemplate.exchange(
                 aiServerUrl,
+                HttpMethod.POST,
                 requestEntity,
-                Paper.class
+                new ParameterizedTypeReference<List<Paper>>() {}
         );
 
-
-        // responseEntity list 로 변환해서 전송
         return responseEntity.getBody();
     }
+
 
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////
 //    private final PaperRepository paperRepository;
