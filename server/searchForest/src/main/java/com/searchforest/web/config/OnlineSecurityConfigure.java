@@ -34,6 +34,7 @@ public class OnlineSecurityConfigure{
                 )
                 .logout(logout -> logout.logoutUrl("/logout"))
                 .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2Service)
                         )

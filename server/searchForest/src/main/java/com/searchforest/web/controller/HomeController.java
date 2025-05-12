@@ -22,8 +22,8 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class HomeController {
-    private final KeywordService keywordService;
-    private final ImageKeywordService imageKeywordService;
+//    private final KeywordService keywordService;
+//    private final ImageKeywordService imageKeywordService;
 
     @GetMapping("/")
     public String home(HttpServletRequest request) {
