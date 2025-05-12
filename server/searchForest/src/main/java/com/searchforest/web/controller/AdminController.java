@@ -1,20 +1,8 @@
 package com.searchforest.web.controller;
 
-import com.searchforest.paper.domain.Paper;
-import com.searchforest.paper.service.CsvExportService;
-import com.searchforest.paper.service.PaperService;
-import com.searchforest.web.controller.vo.FetchRequestDto;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/arxiv")

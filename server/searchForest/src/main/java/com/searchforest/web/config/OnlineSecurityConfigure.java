@@ -1,13 +1,17 @@
 package com.searchforest.web.config;
 
 
+import com.searchforest.user.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -15,38 +19,54 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class OnlineSecurityConfigure{
+public class OnlineSecurityConfigure {
+
     private final CustomOAuth2Service customOAuth2Service;
+    private final CustomUserDetailsService customUserDetailsService;
+
     @Bean
-    PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return customUserDetailsService;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(//login -> login
-//                        .loginPage("/login")
-//                        .defaultSuccessUrl("/user", true)
-//                        .permitAll()
-                        Customizer.withDefaults()
-                )
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // 세션 기반 유지
+                .formLogin(AbstractHttpConfigurer::disable) // HTML form 로그인 제거
+                .httpBasic(AbstractHttpConfigurer::disable) // 기본 인증도 제거
+
                 .logout(logout -> logout.logoutUrl("/logout"))
+
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2Service)
                         )
                 )
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/signup").permitAll()
-                        .requestMatchers("/logout").permitAll()
-                        .anyRequest().permitAll()
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/login", "/signup", "/logout",
+                                "/auth/login", "/auth/signup",
+                                "/oauth2/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 );
 
         return http.build();
     }
 }
+
+

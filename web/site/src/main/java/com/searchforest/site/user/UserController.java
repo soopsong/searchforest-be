@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -70,25 +71,25 @@ public class UserController {
     // GET /search?keyword=XXX&sessionId=XXX
     @Operation(description = "회원 text 검색")
     @GetMapping("/search/keyword")
-    public ResponseEntity<Keyword> textSearch(@RequestParam String text,
+    public ResponseEntity<Keyword> textSearch(@AuthenticationPrincipal User user,
+                                              @RequestParam String text,
                                               @RequestParam UUID sessionId) {
-        // 1. 메시지 저장
-        messageService.save(Messages.builder()
-                .sessionId(sessionId)
-                .content(text)
-                .timestamp(LocalDateTime.now())
-                .build());
 
-        // 2. session 메시지 리스트 가져오기
+        // 회원인 경우에만 메시지 저장
+        if (user != null) {
+            messageService.save(Messages.builder()
+                    .sessionId(sessionId)
+                    .content(text)
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        }
+
         List<String> messages = messageService.getMessages(sessionId);
 
-        // 3. 캐시 조회 (선택) - 단일 keyword 기반이므로 이건 생략하거나 변경 가능
-        // Keyword cached = keywordService.getCachedList(text);
-        // if (cached != null) return ResponseEntity.ok(cached);
-
-        // 4. AI 서버 요청
         Keyword aiResults = keywordService.requestToAIServer(messages);
-        keywordService.save(aiResults);
+        if (user != null) {
+            keywordService.save(aiResults);
+        }
 
         return ResponseEntity.ok(aiResults);
     }
