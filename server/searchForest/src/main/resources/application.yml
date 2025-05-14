@@ -9,14 +9,28 @@ spring:
           google:
             client-id: 764544585758-pn000ql71tf6uq264k7la3f52lsshqi0.apps.googleusercontent.com
             client-secret: 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
+            redirect-uri: http://localhost:9090/login/oauth2/code/google
             scope:
               - email
               - profile
+          kakao:
+            client-id: 9432281a8040ab73a1308200531a5422
+            client-secret: D51EeP2pwDJDuBXVfnDFq9xbNN4kNiwg
+            client-authentication-method: client_secret_post
+            redirect-uri: http://localhost:9090/login/oauth2/code/kakao
+            authorization-grant-type: authorization_code
+            client-name: kakao
+
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
   datasource:
     url: jdbc:mysql://localhost:3306/searchForest
     username: root

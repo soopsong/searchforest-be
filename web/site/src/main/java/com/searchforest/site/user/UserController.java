@@ -14,11 +14,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -109,5 +111,22 @@ public class UserController {
 //        paperService.save(aiResults);
 
         return ResponseEntity.ok(aiResults);
+    }
+
+
+    //test용 회원 정보 조회 api
+    @GetMapping("/me")
+    @Operation(description = "test 용 회원 정보 조회 api")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "로그인되지 않은 사용자입니다."));
+        }
+
+        // OAuth2 provider에 따라 구조가 다름 (예: kakao_account, email, name 등)
+        Map<String, Object> attributes = oauthUser.getAttributes();
+
+        return ResponseEntity.ok(Map.of(
+                "attributes", attributes
+        ));
     }
 }

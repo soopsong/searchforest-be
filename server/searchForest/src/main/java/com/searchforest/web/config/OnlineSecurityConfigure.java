@@ -50,17 +50,27 @@ public class OnlineSecurityConfigure {
                 .logout(logout -> logout.logoutUrl("/logout"))
 
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")
+                        .loginPage("/test/oauth2/login")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2Service)
                         )
+                        .defaultSuccessUrl("/user/me",true)
                 )
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/login", "/signup", "/logout",
                                 "/auth/login", "/auth/signup",
-                                "/oauth2/**"
+                                "/oauth2/**",
+                                "/test/oauth2/login",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/swagger-resources",
+                                "/configuration/ui",
+                                "/configuration/security",
+                                "/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

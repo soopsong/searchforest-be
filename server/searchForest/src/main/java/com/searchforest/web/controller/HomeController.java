@@ -33,6 +33,8 @@ public class HomeController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
 
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLogin request, HttpServletRequest httpRequest) {
         try {
@@ -62,5 +64,6 @@ public class HomeController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
 
 }
