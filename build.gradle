@@ -94,7 +94,13 @@ subprojects {
         subProjectDir.eachDir { dir ->
             def projectName = ":${category}-${dir.name}"
             project(projectName) {
-                // 추가 설정 가능
+                if (dir.name == "searchforest") {  // 메인 실행 모듈
+                    bootJar.enabled = true
+                    jar.enabled = false
+                } else {
+                    bootJar.enabled = false
+                    jar.enabled = true
+                }
             }
         }
     }
