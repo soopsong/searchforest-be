@@ -94,7 +94,7 @@ subprojects {
         subProjectDir.eachDir { dir ->
             def projectName = ":${category}-${dir.name}"
             project(projectName) {
-                if (dir.name == "searchforest") {  // 메인 실행 모듈
+                if (dir.name.equalsIgnoreCase("searchforest")) {
                     bootJar.enabled = true
                     jar.enabled = false
                 } else {
