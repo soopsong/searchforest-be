@@ -14,7 +14,7 @@ public class MessageResponse {
 
     public static MessageResponse from(Messages message) {
         return MessageResponse.builder()
-                .content(message.getContent())
+                .content(message.getRootContent())
                 .timestamp(message.getTimestamp())
                 .build();
     }

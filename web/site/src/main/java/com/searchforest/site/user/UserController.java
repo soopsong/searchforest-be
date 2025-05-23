@@ -4,6 +4,7 @@ import com.searchforest.keyword.domain.Keyword;
 import com.searchforest.keyword.service.KeywordService;
 import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.service.PaperService;
+import com.searchforest.site.dto.KeywordResponse;
 import com.searchforest.site.dto.SessionResponse;
 import com.searchforest.user.domain.Messages;
 import com.searchforest.user.domain.Sessions;
@@ -52,17 +53,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "새로운 세션을 생성하는 API")
-    @PostMapping("/sessions")
-    public ResponseEntity<SessionResponse> createNewSession(@AuthenticationPrincipal User user) {
-        Sessions newSession = sessionService.createSession(user.getId());
-        return ResponseEntity.ok(SessionResponse.from(newSession));
-    }
-
-
     //sessionId로 요청시 해당 session 의 message 를 전부 list 로 제공.
-    @Operation(description = "해당 session Id 의 message list 를 제공하는 api")
-    @GetMapping("/sessions/{sessionId}")
+    @Operation(description = "해당 session Id 의 message list 를 제공하는 api, history용")
+    @GetMapping("/sessions/history/{sessionId}")
     public ResponseEntity<List<String>> getSessionMessages(@PathVariable UUID sessionId) {
         List<String> contents = messageService.getMessages(sessionId);
         return ResponseEntity.ok(contents);
@@ -71,17 +64,50 @@ public class UserController {
 
     // text 검색
     // GET /search?keyword=XXX&sessionId=XXX
-    @Operation(description = "회원 text 검색")
+    @Operation(description = "회원 keyword 검색(최초 검색, session 생성)")
     @GetMapping("/search/keyword")
+    public ResponseEntity<KeywordResponse> textSearch(@AuthenticationPrincipal User user,
+                                              @RequestParam String text) {
+
+        // session 생성
+        Sessions newSession = sessionService.createSession(user.getId());
+
+        // 검색한 메시지 저장
+        messageService.save(Messages.builder()
+                .sessionId(newSession.getId())
+                .rootContent(text)
+                .timestamp(LocalDateTime.now())
+                .build());
+
+        List<String> messages = messageService.getMessages(newSession.getId());
+
+        Keyword aiResults = keywordService.requestToAIServer(messages);
+
+        //Todo 저장해야해?
+        keywordService.save(aiResults);
+
+        KeywordResponse response =  KeywordResponse.builder()
+                .sessionId(newSession.getId())
+                .text(aiResults.getText())
+                .weight(aiResults.getWeight())
+                .sublist(aiResults.getSublist())
+                .build();
+
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(description = "회원 keyword 검색(해당 session 내, node 클릭으로 이어지는 검색)")
+    @GetMapping("/search/keyword/{sessionId}")
     public ResponseEntity<Keyword> textSearch(@AuthenticationPrincipal User user,
                                               @RequestParam String text,
-                                              @RequestParam UUID sessionId) {
+                                              @PathVariable UUID sessionId) {
 
         // 회원인 경우에만 메시지 저장
         if (user != null) {
             messageService.save(Messages.builder()
                     .sessionId(sessionId)
-                    .content(text)
+                    .rootContent(text)
                     .timestamp(LocalDateTime.now())
                     .build());
         }
@@ -102,7 +128,7 @@ public class UserController {
         // 1. 메시지 저장
         messageService.save(Messages.builder()
                 .sessionId(sessionId)
-                .content(keyword)
+                .rootContent(keyword)
                 .timestamp(LocalDateTime.now())
                 .build());
 

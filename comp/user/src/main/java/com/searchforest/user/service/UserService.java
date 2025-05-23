@@ -3,6 +3,7 @@ package com.searchforest.user.service;
 
 import com.searchforest.user.domain.User;
 import com.searchforest.user.domain.UserLogin;
+import com.searchforest.user.repository.PaperHistoryRepository;
 import com.searchforest.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PaperHistoryRepository paperHistoryRepository;
     private final PasswordEncoder passwordEncoder;
 
     public void signup(UserLogin userRequest) {

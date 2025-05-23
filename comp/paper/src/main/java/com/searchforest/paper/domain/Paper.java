@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "sp_paper")
+@Table(name = "sf_paper")
 public class Paper {
 
     @Id
