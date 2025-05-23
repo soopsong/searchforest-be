@@ -10,14 +10,14 @@ import java.util.UUID;
 @Getter
 @Builder
 public class SessionResponse {
-    private UUID sessionId;
-    private String title;
-    private LocalDateTime updatedAt;
-
-    public static SessionResponse from(Sessions session) {
-        return SessionResponse.builder()
-                .sessionId(session.getId())
-                .updatedAt(session.getUpdatedAt())
-                .build();
-    }
+//    private UUID sessionId;
+//    private String title;
+//    private LocalDateTime updatedAt;
+//
+//    public static SessionResponse from(Sessions session) {
+//        return SessionResponse.builder()
+//                .sessionId(session.getId())
+//                .updatedAt(session.getUpdatedAt())
+//                .build();
+//    }
 }

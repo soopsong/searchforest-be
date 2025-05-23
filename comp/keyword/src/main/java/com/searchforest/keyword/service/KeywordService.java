@@ -46,7 +46,7 @@ public class KeywordService {
         // JSON 생성
         Map<String, Object> body = new HashMap<>();
         body.put("messages", messages);
-        body.put("mode", "text");
+        body.put("mode", "keyword");
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 

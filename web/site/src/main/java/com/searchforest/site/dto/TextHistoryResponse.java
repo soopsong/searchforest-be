@@ -5,17 +5,17 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
 public class TextHistoryResponse {
-    private LocalDateTime timestamp;
-    private String content;
+    private UUID sessionId;
+    private List<String> messages;
 
-    public static TextHistoryResponse from(TextHistory textHistory) {
-        return TextHistoryResponse.builder()
-                .content(textHistory.getRootContent())
-                .timestamp(textHistory.getTimestamp())
-                .build();
+    public TextHistoryResponse(UUID sessionId, List<String> messages) {
+        this.sessionId = sessionId;
+        this.messages = messages;
     }
 }

@@ -6,6 +6,7 @@ import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.service.PaperService;
 import com.searchforest.site.dto.KeywordResponse;
 import com.searchforest.site.dto.SessionResponse;
+import com.searchforest.site.dto.TextHistoryResponse;
 import com.searchforest.user.domain.Sessions;
 import com.searchforest.user.domain.TextHistory;
 import com.searchforest.user.domain.User;
@@ -40,26 +41,29 @@ public class UserController {
     }
 
     //user 의 session List 를 보내는 api(상위 5개)
-    @Operation(description = "user 의 session Id list 를 제공하는 api")
-    @GetMapping("/sessions")
-    public ResponseEntity<List<SessionResponse>> getUserSessions(@AuthenticationPrincipal User user) {
+    @Operation(description = "user 의 history list를 제공하는 api")
+    @GetMapping("/history")
+    public ResponseEntity<List<TextHistoryResponse>> getUserHistories(@AuthenticationPrincipal User user) {
         List<Sessions> sessions = sessionService.getSessions(user.getId());
 
-        List<SessionResponse> response = sessions.stream()
-                .map(SessionResponse::from)
+        List<TextHistoryResponse> result = sessions.stream()
+                .map(session -> {
+                    List<String> messages = textHistoryService.getTextHistory(session.getId());
+                    return new TextHistoryResponse(session.getId(), messages);
+                })
                 .toList();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(result);
     }
 
     //sessionId로 요청시 해당 session 의 message 를 전부 list 로 제공.
-    @Operation(description = "해당 session Id 의 message list 를 제공하는 api, history용")
-    @GetMapping("/sessions/history/{sessionId}")
-    public ResponseEntity<List<String>> getSessionMessages(@PathVariable UUID sessionId) {
-        List<String> contents = textHistoryService.getTextHistory(sessionId);
-        return ResponseEntity.ok(contents);
-    }
-
+//    @Operation(description = "해당 session Id 의 message list 를 제공하는 api, history용")
+//    @GetMapping("/history/{sessionId}")
+//    public ResponseEntity<List<String>> getSessionMessages(@PathVariable UUID sessionId) {
+//        List<String> contents = textHistoryService.getTextHistory(sessionId);
+//        return ResponseEntity.ok(contents);
+//    }
+//
 
     // text 검색
     // GET /search?keyword=XXX&sessionId=XXX
