@@ -6,18 +6,17 @@ import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.service.PaperService;
 import com.searchforest.site.dto.KeywordResponse;
 import com.searchforest.site.dto.SessionResponse;
-import com.searchforest.user.domain.Messages;
 import com.searchforest.user.domain.Sessions;
+import com.searchforest.user.domain.TextHistory;
 import com.searchforest.user.domain.User;
-import com.searchforest.user.service.MessageService;
 import com.searchforest.user.service.SessionService;
+import com.searchforest.user.service.TextHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,12 +30,12 @@ public class UserController {
 
     private final KeywordService keywordService;
     private final SessionService sessionService;
-    private final MessageService messageService;
+    private final TextHistoryService textHistoryService;
     private final PaperService paperService;
 
     @Operation(description = "기본 홈페이지")
     @GetMapping("")
-    public String home(){
+    public String home() {
         return "hi user";
     }
 
@@ -57,7 +56,7 @@ public class UserController {
     @Operation(description = "해당 session Id 의 message list 를 제공하는 api, history용")
     @GetMapping("/sessions/history/{sessionId}")
     public ResponseEntity<List<String>> getSessionMessages(@PathVariable UUID sessionId) {
-        List<String> contents = messageService.getMessages(sessionId);
+        List<String> contents = textHistoryService.getTextHistory(sessionId);
         return ResponseEntity.ok(contents);
     }
 
@@ -67,26 +66,26 @@ public class UserController {
     @Operation(description = "회원 keyword 검색(최초 검색, session 생성)")
     @GetMapping("/search/keyword")
     public ResponseEntity<KeywordResponse> textSearch(@AuthenticationPrincipal User user,
-                                              @RequestParam String text) {
+                                                      @RequestParam String text) {
 
         // session 생성
         Sessions newSession = sessionService.createSession(user.getId());
 
         // 검색한 메시지 저장
-        messageService.save(Messages.builder()
+        textHistoryService.save(TextHistory.builder()
                 .sessionId(newSession.getId())
                 .rootContent(text)
                 .timestamp(LocalDateTime.now())
                 .build());
 
-        List<String> messages = messageService.getMessages(newSession.getId());
+        List<String> messages = textHistoryService.getTextHistory(newSession.getId());
 
         Keyword aiResults = keywordService.requestToAIServer(messages);
 
         //Todo 저장해야해?
         keywordService.save(aiResults);
 
-        KeywordResponse response =  KeywordResponse.builder()
+        KeywordResponse response = KeywordResponse.builder()
                 .sessionId(newSession.getId())
                 .text(aiResults.getText())
                 .weight(aiResults.getWeight())
@@ -104,29 +103,31 @@ public class UserController {
                                               @PathVariable UUID sessionId) {
 
         // 회원인 경우에만 메시지 저장
-        if (user != null) {
-            messageService.save(Messages.builder()
-                    .sessionId(sessionId)
-                    .rootContent(text)
-                    .timestamp(LocalDateTime.now())
-                    .build());
-        }
 
-        List<String> messages = messageService.getMessages(sessionId);
+        textHistoryService.save(TextHistory.builder()
+                .sessionId(sessionId)
+                .rootContent(text)
+                .timestamp(LocalDateTime.now())
+                .build());
+
+
+        List<String> messages = textHistoryService.getTextHistory(sessionId);
 
         Keyword aiResults = keywordService.requestToAIServer(messages);
-        if (user != null) {
-            keywordService.save(aiResults);
-        }
+
+        //Todo 저장해야할까?
+        keywordService.save(aiResults);
+
 
         return ResponseEntity.ok(aiResults);
     }
+
     @Operation(description = "논문 데이터 검색")
     @GetMapping("/search/paper")
     public ResponseEntity<List<Paper>> paperSearch(@RequestParam String keyword,
                                                    @RequestParam UUID sessionId) {
         // 1. 메시지 저장
-        messageService.save(Messages.builder()
+        textHistoryService.save(TextHistory.builder()
                 .sessionId(sessionId)
                 .rootContent(keyword)
                 .timestamp(LocalDateTime.now())

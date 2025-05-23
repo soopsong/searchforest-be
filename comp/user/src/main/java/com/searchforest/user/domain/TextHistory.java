@@ -16,8 +16,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "session_messages")
-public class Messages {
+@Table(name = "session_text_histories")
+public class TextHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +32,9 @@ public class Messages {
 
     //child 검색어
     @ElementCollection
-    @CollectionTable(name = "message_sub_contents", joinColumns = @JoinColumn(name = "message_id"))
+    @CollectionTable(name = "history_sub_contents", joinColumns = @JoinColumn(name = "message_id"))
     @OrderColumn(name = "order_index") // 순서 보장
-    @Column(name = "sub_content", columnDefinition = "TEXT")
+    @Column(name = "sub_cotents", columnDefinition = "TEXT")
     private List<String> subContent;
 
     @Column(nullable = false)
