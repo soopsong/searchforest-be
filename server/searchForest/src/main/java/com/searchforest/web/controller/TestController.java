@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Controller
-@RequestMapping("/test")
+@RequestMapping("/oauth2")
 @RequiredArgsConstructor
 public class TestController {
 
-    @GetMapping("/oauth2/login")
+    @GetMapping("/login")
     public String oAuth2Login(){
         return "OAuth2Login";
     }
