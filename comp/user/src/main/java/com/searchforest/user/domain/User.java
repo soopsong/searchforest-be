@@ -43,6 +43,10 @@ public class User implements UserDetails {
         return this.email;
     }
 
+    public String getNickname() {
+        return this.username;
+    }
+
     // 비밀번호 체크가 필요 없을 수도 있으므로 true 반환
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }

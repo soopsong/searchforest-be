@@ -3,20 +3,21 @@ package com.searchforest.web.controller;
 import com.searchforest.user.domain.User;
 import com.searchforest.user.domain.UserLogin;
 import com.searchforest.user.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
+import com.searchforest.web.config.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -26,24 +27,19 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLogin request, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> login(@RequestBody UserLogin request) {
         try {
-            // 인증 시도
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(auth);
 
-            Authentication authentication = authenticationManager.authenticate(authToken);
-
-            // 인증 성공 → SecurityContext에 저장 + 세션 생성
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            httpRequest.getSession(true); // 세션 생성 (JSESSIONID)
-
-            return ResponseEntity.ok(Map.of("message", "로그인 성공"));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "아이디 또는 비밀번호가 올바르지 않습니다."));
+            String token = jwtTokenProvider.createToken(request.getEmail(), auth.getAuthorities());
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인 실패"));
         }
     }
 
@@ -72,21 +68,19 @@ public class AuthController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "로그인이 필요합니다."));
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인이 필요합니다."));
         }
 
-        User user = userService.findByEmail(userDetails.getUsername());
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "사용자 정보를 찾을 수 없습니다."));
-        }
+        String email = auth.getName();
+        User user = userService.findByEmail(email);
 
-        return ResponseEntity.ok(Map.of(
-                "username", user.getUsername(),
-                "email", user.getEmail()
-        ));
+        Map<String, String> result = new HashMap<>();
+        result.put("username", user.getNickname());
+        result.put("email", user.getEmail());
+
+        return ResponseEntity.ok(result);
     }
 }

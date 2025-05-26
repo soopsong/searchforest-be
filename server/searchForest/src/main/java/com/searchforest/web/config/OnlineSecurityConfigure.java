@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class OnlineSecurityConfigure {
 
     private final CustomOAuth2Service customOAuth2Service;
     private final CustomUserDetailsService customUserDetailsService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,12 +60,11 @@ public class OnlineSecurityConfigure {
                     return config;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .formLogin(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .logout(logout -> logout.logoutUrl("/api/logout"))
 
-                // ✅ 인증 실패 시 리디렉션 대신 401 반환
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -73,21 +74,23 @@ public class OnlineSecurityConfigure {
                 )
 
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/login") // 소셜 로그인용 페이지
+                        .loginPage("/oauth2/login")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2Service))
                         .defaultSuccessUrl("/user/me", true)
                 )
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/api/login", "/api/signup", "/api/logout",
+                                "/", "/api/login", "/api/signup", "/api/logout", "/api/user",
                                 "/oauth2/**", "/test/oauth2/login", "/oauth2/login",
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/swagger-resources/**", "/configuration/ui", "/configuration/security", "/webjars/**",
                                 "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
