@@ -1,5 +1,6 @@
 package com.searchforest.web.controller;
 
+import com.searchforest.user.domain.User;
 import com.searchforest.user.domain.UserLogin;
 import com.searchforest.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +11,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +71,26 @@ public class AuthController {
         SecurityContextHolder.clearContext();
 
         return ResponseEntity.ok(Map.of("message", "로그아웃 성공"));
+    }
+
+    @PostMapping("/user")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "로그인이 필요합니다."));
+        }
+
+        // 사용자 이메일로 사용자 정보 조회
+        User user = userService.findByEmail(userDetails.getUsername());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "사용자 정보를 찾을 수 없습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "username", user.getUsername(),
+                "email", user.getEmail()
+                // 필요 시 다른 정보도 추가 가능
+        ));
     }
 }
