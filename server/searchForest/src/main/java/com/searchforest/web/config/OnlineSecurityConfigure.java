@@ -75,7 +75,8 @@ public class OnlineSecurityConfigure {
                                 "/test/oauth2/login",
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/swagger-resources/**", "/configuration/ui", "/configuration/security",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
