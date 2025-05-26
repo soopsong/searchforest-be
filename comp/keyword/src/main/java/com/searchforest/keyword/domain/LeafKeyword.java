@@ -4,31 +4,31 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "sf_subKeyword")
-public class SubKeyword {
-
+@Table(name = "sf_leafKeyword")
+public class LeafKeyword {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
+    @GeneratedValue
     private Long id;
 
     private String text;
     private double weight;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "keyword_id")
+    @JoinColumn(name = "subkeyword_id")
     @ToString.Exclude
     @JsonIgnore
-    private Keyword keyword;
+    private SubKeyword subKeyword;
 
+    public static LeafKeyword of(String text, double value) {
+        return LeafKeyword.builder()
+                .text(text)
+                .weight(value)
+                .build();
+    }
 
-    @OneToMany(mappedBy = "subKeyword", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LeafKeyword> sublist;
 }

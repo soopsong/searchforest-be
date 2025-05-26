@@ -5,6 +5,7 @@ import com.searchforest.keyword.service.KeywordService;
 import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.service.PaperService;
 import com.searchforest.site.dto.KeywordResponse;
+import com.searchforest.site.dto.KeywordResponseMapper;
 import com.searchforest.site.dto.SessionResponse;
 import com.searchforest.site.dto.TextHistoryResponse;
 import com.searchforest.user.domain.Sessions;
@@ -20,6 +21,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -89,14 +91,7 @@ public class UserController {
         //Todo 저장해야해?
         keywordService.save(aiResults);
 
-        KeywordResponse response = KeywordResponse.builder()
-                .sessionId(newSession.getId())
-                .text(aiResults.getText())
-                .weight(aiResults.getWeight())
-                .sublist(aiResults.getSublist())
-                .build();
-
-
+        KeywordResponse response = KeywordResponseMapper.from(aiResults, newSession.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -106,22 +101,25 @@ public class UserController {
                                               @RequestParam String text,
                                               @PathVariable UUID sessionId) {
 
-        // 회원인 경우에만 메시지 저장
+        TextHistory root = textHistoryService.findRootBySessionId(sessionId);
+        if (root == null) {
+            return ResponseEntity.badRequest().build(); // 또는 새로 생성
+        }
 
-        textHistoryService.save(TextHistory.builder()
-                .sessionId(sessionId)
-                .rootContent(text)
-                .timestamp(LocalDateTime.now())
-                .build());
+        List<String> subList = root.getSubContent();
+        if (subList == null) {
+            subList = new ArrayList<>();
+            root.setSubContent(subList);
+        }
+        subList.add(text);
 
+        // 3. 저장
+        textHistoryService.save(root);
 
+        // 4. AI 서버 요청
         List<String> messages = textHistoryService.getTextHistory(sessionId);
-
         Keyword aiResults = keywordService.requestToAIServer(messages);
-
-        //Todo 저장해야할까?
         keywordService.save(aiResults);
-
 
         return ResponseEntity.ok(aiResults);
     }

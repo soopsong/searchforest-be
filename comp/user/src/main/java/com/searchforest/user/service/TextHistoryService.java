@@ -33,6 +33,11 @@ public class TextHistoryService {
         return result;
     }
 
+    public TextHistory findRootBySessionId(UUID sessionId) {
+        return textHistoryRepository.findFirstBySessionIdOrderByTimestampAsc(sessionId)
+                .orElse(null);
+    }
+
     public void save(TextHistory textHistory) {
         textHistoryRepository.save(textHistory);
     }

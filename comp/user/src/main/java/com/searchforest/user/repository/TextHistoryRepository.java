@@ -13,4 +13,6 @@ public interface TextHistoryRepository extends JpaRepository<TextHistory, Long> 
 
     Optional<TextHistory> findBySessionId(UUID sessionId);
 
+    Optional<TextHistory> findFirstBySessionIdOrderByTimestampAsc(UUID sessionId);
+
 }

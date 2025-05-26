@@ -1,21 +1,17 @@
 package com.searchforest.site.dto;
 
-
-import com.searchforest.keyword.domain.SubKeyword;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Builder
 @AllArgsConstructor
-public class KeywordResponse {
-    private UUID sessionId;
+public class SubKeywordDto {
     private String text;
     private double weight;
-    private List<SubKeywordDto> sublist;
+    private List<LeafKeywordDto> sublist;
 }
+
