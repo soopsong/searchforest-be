@@ -20,10 +20,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public void signup(UserLogin userRequest) {
-        if (userRepository.existsByUsername(userRequest.getUsername())) {
-            throw new RuntimeException("이미 사용 중인 사용자 이름입니다.");
-        }
-
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
