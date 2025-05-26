@@ -1,14 +1,11 @@
 package com.searchforest.web.config;
 
-
 import com.searchforest.user.service.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,10 +46,7 @@ public class OnlineSecurityConfigure {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(List.of(
-                            "http://localhost:5173",
-                            "http://52.78.34.56:9090"
-                    ));
+                    config.setAllowedOrigins(List.of("http://localhost:5173", "http://52.78.34.56:9090"));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
@@ -62,20 +56,29 @@ public class OnlineSecurityConfigure {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .logout(logout -> logout.logoutUrl("/logout"))
+                .logout(logout -> logout.logoutUrl("/api/logout"))
+
+                // ✅ 인증 실패 시 리디렉션 대신 401 반환
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"error\": \"인증이 필요합니다.\"}");
+                        })
+                )
+
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/login")
+                        .loginPage("/oauth2/login") // 소셜 로그인용 페이지
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2Service))
                         .defaultSuccessUrl("/user/me", true)
                 )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/api/login", "/api/signup", "/logout",
-                                "/oauth2/**",
-                                "/test/oauth2/login",
+                                "/", "/api/login", "/api/signup", "/api/logout",
+                                "/oauth2/**", "/test/oauth2/login", "/oauth2/login",
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
-                                "/swagger-resources/**", "/configuration/ui", "/configuration/security",
-                                "/webjars/**",
+                                "/swagger-resources/**", "/configuration/ui", "/configuration/security", "/webjars/**",
                                 "/favicon.ico", "/static/**", "/css/**", "/js/**", "/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -84,5 +87,3 @@ public class OnlineSecurityConfigure {
         return http.build();
     }
 }
-
-
