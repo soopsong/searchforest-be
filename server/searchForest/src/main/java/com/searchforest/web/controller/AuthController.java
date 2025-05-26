@@ -15,10 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -74,15 +71,13 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "로그아웃 성공"));
     }
 
-    @PostMapping("/user")
-    @Operation(description = "로그인된 사용자 정보를 제공하는 api, optional 하게 username 과 email return")
+    @GetMapping("/user")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "로그인이 필요합니다."));
         }
 
-        // 사용자 이메일로 사용자 정보 조회
         User user = userService.findByEmail(userDetails.getUsername());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -92,7 +87,6 @@ public class AuthController {
         return ResponseEntity.ok(Map.of(
                 "username", user.getUsername(),
                 "email", user.getEmail()
-                // 필요 시 다른 정보도 추가 가능
         ));
     }
 }
