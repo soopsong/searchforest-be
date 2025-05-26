@@ -3,6 +3,7 @@ package com.searchforest.web.controller;
 import com.searchforest.user.domain.User;
 import com.searchforest.user.domain.UserLogin;
 import com.searchforest.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -74,6 +75,7 @@ public class AuthController {
     }
 
     @PostMapping("/user")
+    @Operation(description = "로그인된 사용자 정보를 제공하는 api, optional 하게 username 과 email return")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
