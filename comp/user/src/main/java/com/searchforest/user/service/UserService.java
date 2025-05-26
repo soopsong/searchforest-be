@@ -5,12 +5,14 @@ import com.searchforest.user.domain.User;
 import com.searchforest.user.domain.UserLogin;
 import com.searchforest.user.repository.PaperHistoryRepository;
 import com.searchforest.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
