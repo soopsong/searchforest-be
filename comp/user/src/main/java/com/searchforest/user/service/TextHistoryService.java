@@ -24,7 +24,6 @@ public class TextHistoryService {
                 .orElseThrow(() -> new NoSuchElementException("해당 세션의 메시지를 찾을 수 없습니다: " + sessionId));
 
         List<String> result = new ArrayList<>();
-        result.add(textHistory.getRootContent());  // rootContent는 0번 index
 
         if (textHistory.getSubContent() != null) {
             result.addAll(textHistory.getSubContent());  // subContent는 뒤에 붙임
@@ -40,5 +39,14 @@ public class TextHistoryService {
 
     public void save(TextHistory textHistory) {
         textHistoryRepository.save(textHistory);
+    }
+
+
+    public String getRootMessage(UUID sessionId) {
+        TextHistory textHistory = textHistoryRepository.findBySessionId(sessionId).orElse(null);
+        if (textHistory == null) {
+            throw new IllegalArgumentException("해당 sessionId에 대한 root 메시지가 존재하지 않습니다.");
+        }
+        return textHistory.getRootContent();
     }
 }

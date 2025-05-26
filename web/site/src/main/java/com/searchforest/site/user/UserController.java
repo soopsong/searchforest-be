@@ -50,8 +50,9 @@ public class UserController {
 
         List<TextHistoryResponse> result = sessions.stream()
                 .map(session -> {
+                    String rootMessage = textHistoryService.getRootMessage(session.getId());
                     List<String> messages = textHistoryService.getTextHistory(session.getId());
-                    return new TextHistoryResponse(session.getId(), messages);
+                    return new TextHistoryResponse(session.getId(),rootMessage,messages);
                 })
                 .toList();
 

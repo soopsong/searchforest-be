@@ -1,6 +1,7 @@
 package com.searchforest.site.dto;
 
 import com.searchforest.user.domain.TextHistory;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,12 +11,10 @@ import java.util.UUID;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class TextHistoryResponse {
     private UUID sessionId;
-    private List<String> messages;
+    private String rootMessages;
+    private List<String> subMessages;
 
-    public TextHistoryResponse(UUID sessionId, List<String> messages) {
-        this.sessionId = sessionId;
-        this.messages = messages;
-    }
 }
