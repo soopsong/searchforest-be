@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TextHistoryResponse {
     private UUID sessionId;
-    private String rootMessages;
+    private String rootMessage;
     private List<String> subMessages;
 
 }
