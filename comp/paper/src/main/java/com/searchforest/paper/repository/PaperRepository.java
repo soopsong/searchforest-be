@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaperRepository extends JpaRepository<Paper, Long> {
-    boolean existsByPaperId(String arxivId);
+    boolean existsByPaperId(String paperId);
 
     @Query("SELECT p.paperId FROM Paper p")
-    List<String> findAllArxivIds();
+    List<String> findAllPaperIds();
 
 
     Optional<Paper> findByTitle(String title);

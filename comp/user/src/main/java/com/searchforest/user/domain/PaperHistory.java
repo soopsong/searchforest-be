@@ -23,6 +23,8 @@ public class PaperHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
     @Column(nullable = false)
     private LocalDateTime searchedAt;
 

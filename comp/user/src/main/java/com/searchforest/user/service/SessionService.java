@@ -17,9 +17,9 @@ public class SessionService {
 
     private final SessionRepository sessionRepository;
 
-    //userId 로 session 을 검색해 해당 user 가 가지고 있는 상위 5개의 session 을 return;
+    //userId 로 session 을 검색해 해당 user 가 가지고 있는 상위 10개의 session 을 return;
     public List<Sessions> getSessions(Long userId){
-        return sessionRepository.findAllByUserIdOrderByUpdatedAtDesc(userId, PageRequest.of(0,5));
+        return sessionRepository.findAllByUserIdOrderByUpdatedAtDesc(userId, PageRequest.of(0,10));
     }
 
     public Sessions createSession(Long userId) {

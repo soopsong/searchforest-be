@@ -8,9 +8,11 @@ import com.searchforest.site.dto.KeywordResponse;
 import com.searchforest.site.dto.KeywordResponseMapper;
 import com.searchforest.site.dto.SessionResponse;
 import com.searchforest.site.dto.TextHistoryResponse;
+import com.searchforest.user.domain.PaperHistory;
 import com.searchforest.user.domain.Sessions;
 import com.searchforest.user.domain.TextHistory;
 import com.searchforest.user.domain.User;
+import com.searchforest.user.service.PaperHistoryService;
 import com.searchforest.user.service.SessionService;
 import com.searchforest.user.service.TextHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +37,7 @@ public class UserController {
     private final SessionService sessionService;
     private final TextHistoryService textHistoryService;
     private final PaperService paperService;
+    private final PaperHistoryService paperHistoryService;
 
     @Operation(description = "기본 홈페이지")
     @GetMapping("")
@@ -127,18 +130,10 @@ public class UserController {
 
     @Operation(description = "논문 데이터 검색")
     @GetMapping("/search/paper")
-    public ResponseEntity<List<Paper>> paperSearch(@RequestParam String keyword,
-                                                   @RequestParam UUID sessionId) {
-        // 1. 메시지 저장
-        textHistoryService.save(TextHistory.builder()
-                .sessionId(sessionId)
-                .rootContent(keyword)
-                .timestamp(LocalDateTime.now())
-                .build());
+    public ResponseEntity<List<Paper>> paperSearch(@RequestParam String text) {
 
         // 2. AI 서버 요청
-        List<Paper> aiResults = paperService.requestToAIServer(keyword);
-//        paperService.save(aiResults);
+        List<Paper> aiResults = paperService.requestToAIServer(text);
 
         return ResponseEntity.ok(aiResults);
     }
