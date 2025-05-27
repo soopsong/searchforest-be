@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PaperRepository extends JpaRepository<Paper, Long> {
-    boolean existsByArxivId(String arxivId);
+    boolean existsByPaperId(String arxivId);
 
-    @Query("SELECT p.arxivId FROM Paper p")
+    @Query("SELECT p.paperId FROM Paper p")
     List<String> findAllArxivIds();
 
 
