@@ -49,7 +49,7 @@ public class KeywordService {
             // ✅ mock 데이터 fallback
             return Keyword.builder()
                     .text("language model")
-                    .weight(0.1)
+                    .weight(1)
                     .sublist(List.of(
                             SubKeyword.builder()
                                     .text("transformer")

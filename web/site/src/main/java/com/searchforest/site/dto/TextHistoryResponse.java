@@ -16,5 +16,4 @@ public class TextHistoryResponse {
     private UUID sessionId;
     private String rootMessage;
     private List<String> subMessages;
-
 }
