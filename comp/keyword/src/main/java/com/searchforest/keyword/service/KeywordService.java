@@ -46,7 +46,7 @@ public class KeywordService {
             );
             return responseEntity.getBody();
         } catch (Exception e) {
-            if (messages.size() >= 2) {
+            if (messages.isEmpty()) {
                 // ✅ fallback mock #2
                 return Keyword.builder()
                         .text("self-attention")
