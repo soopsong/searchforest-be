@@ -25,7 +25,7 @@ public class KeywordService {
     private final KeywordRepository keywordRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String aiServerUrl = "";
+    private final String aiServerUrl = "http://52.78.34.56:8000";
 
 
     public Keyword requestToAIServer(List<String> messages) {
@@ -46,7 +46,62 @@ public class KeywordService {
             );
             return responseEntity.getBody();
         } catch (Exception e) {
-            // ✅ mock 데이터 fallback
+            if (messages.size() >= 2) {
+                // ✅ fallback mock #2
+                return Keyword.builder()
+                        .text("self-attention")
+                        .weight(1.0)
+                        .sublist(List.of(
+                                SubKeyword.builder()
+                                        .text("multi-head attention")
+                                        .weight(0.8)
+                                        .sublist(List.of(
+                                                LeafKeyword.of("projection layers", 0.5),
+                                                LeafKeyword.of("head concatenation", 0.4),
+                                                LeafKeyword.of("parallel attention heads", 0.6)
+                                        ))
+                                        .build(),
+                                SubKeyword.builder()
+                                        .text("scaled dot-product attention")
+                                        .weight(0.8)
+                                        .sublist(List.of(
+                                                LeafKeyword.of("query-key dot product", 0.6),
+                                                LeafKeyword.of("scaling factor", 0.5),
+                                                LeafKeyword.of("softmax weighting", 0.4)
+                                        ))
+                                        .build(),
+                                SubKeyword.builder()
+                                        .text("positional encoding")
+                                        .weight(0.8)
+                                        .sublist(List.of(
+                                                LeafKeyword.of("sine cosine embedding", 0.6),
+                                                LeafKeyword.of("sequence order injection", 0.5),
+                                                LeafKeyword.of("absolute position bias", 0.4)
+                                        ))
+                                        .build(),
+                                SubKeyword.builder()
+                                        .text("attention mechanism")
+                                        .weight(0.8)
+                                        .sublist(List.of(
+                                                LeafKeyword.of("alignment score", 0.6),
+                                                LeafKeyword.of("attention weights", 0.5),
+                                                LeafKeyword.of("context vector", 0.4)
+                                        ))
+                                        .build(),
+                                SubKeyword.builder()
+                                        .text("transformer architecture")
+                                        .weight(0.8)
+                                        .sublist(List.of(
+                                                LeafKeyword.of("encoder-decoder", 0.6),
+                                                LeafKeyword.of("layer normalization", 0.5),
+                                                LeafKeyword.of("residual connection", 0.4)
+                                        ))
+                                        .build()
+                        ))
+                        .build();
+            }
+
+            // ✅ fallback mock #1 (기존)
             return Keyword.builder()
                     .text("language model")
                     .weight(1)
@@ -100,6 +155,7 @@ public class KeywordService {
                     .build();
         }
     }
+
 
     //Todo DB에 result list 저장.
     public void save(Keyword keyword) {

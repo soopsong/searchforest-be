@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  graph-service:
+    image: ghcr.io/soopsong/graph-service:latest
+    ports:
+      - "8002:8002"
+    networks:
+      - backend
+
+  papers-service:
+    image: ghcr.io/soopsong/papers-service:latest
+    ports:
+      - "8003:8003"
+    networks:
+      - backend
+
+  sum-service:
+    image: ghcr.io/soopsong/sum-service:latest
+    ports:
+      - "8004:8004"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
