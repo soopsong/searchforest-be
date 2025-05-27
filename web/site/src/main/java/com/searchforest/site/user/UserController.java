@@ -128,7 +128,7 @@ public class UserController {
     @Operation(description = "논문 데이터 검색")
     @GetMapping("/search/paper")
     public ResponseEntity<List<Paper>> paperSearch(@RequestParam String keyword,
-                                                   @RequestParam UUID sessionId) {
+                                                   @RequestParam(required = false) UUID sessionId) {
         // 1. 메시지 저장
         textHistoryService.save(TextHistory.builder()
                 .sessionId(sessionId)
