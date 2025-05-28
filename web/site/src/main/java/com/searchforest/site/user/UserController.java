@@ -44,7 +44,7 @@ public class UserController {
 
     //user 의 session List 를 보내는 api(상위 5개)
     @Operation(description = "user 의 history list를 제공하는 api")
-    @GetMapping("/keyword/history")
+    @GetMapping("/history/paper")
     public ResponseEntity<List<TextHistoryResponse>> getUserHistories(@AuthenticationPrincipal User user) {
         List<Sessions> sessions = sessionService.getSessions(user.getId());
 
