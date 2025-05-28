@@ -25,7 +25,7 @@ public class KeywordService {
     private final KeywordRepository keywordRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String aiServerUrl = "http://52.78.34.56:8000";
+    private final String aiServerUrl = "http://52.78.34.56:8002/graph";
 
 
     public Keyword requestToAIServer(List<String> messages) {
@@ -33,8 +33,9 @@ public class KeywordService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("messages", messages);
-        body.put("mode", "keyword");
+//        body.put("root", messages.get(0));
+        body.put("top1", 5);
+        body.put("top2", 3);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 

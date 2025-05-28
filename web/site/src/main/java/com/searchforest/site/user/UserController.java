@@ -4,10 +4,7 @@ import com.searchforest.keyword.domain.Keyword;
 import com.searchforest.keyword.service.KeywordService;
 import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.service.PaperService;
-import com.searchforest.site.dto.KeywordResponse;
-import com.searchforest.site.dto.KeywordResponseMapper;
-import com.searchforest.site.dto.SessionResponse;
-import com.searchforest.site.dto.TextHistoryResponse;
+import com.searchforest.site.dto.*;
 import com.searchforest.user.domain.PaperHistory;
 import com.searchforest.user.domain.Sessions;
 import com.searchforest.user.domain.TextHistory;
@@ -51,7 +48,7 @@ public class UserController {
         List<TextHistoryResponse> result = sessions.stream()
                 .map(session -> {
                     String rootMessage = textHistoryService.getRootMessage(session.getId());
-                    List<String> messages = textHistoryService.getTextHistory(session.getId());
+                    List<String> messages = textHistoryService.getSubTextHistory(session.getId());
                     return new TextHistoryResponse(session.getId(),rootMessage,messages);
                 })
                 .toList();
@@ -93,20 +90,23 @@ public class UserController {
         keywordService.save(aiResults);
 
         KeywordResponse response = KeywordResponseMapper.from(aiResults, newSession.getId());
+        response.setCurrentText(text);
         return ResponseEntity.ok(response);
     }
 
     @Operation(description = "회원 keyword 검색(해당 session 내, node 클릭으로 이어지는 검색)")
     @GetMapping("/search/keyword/{sessionId}")
-    public ResponseEntity<Keyword> textSearch(@AuthenticationPrincipal User user,
-                                              @RequestParam String text,
-                                              @PathVariable UUID sessionId) {
+    public ResponseEntity<KeywordResponse> textSearch(@AuthenticationPrincipal User user,
+                                                      @RequestParam String text,
+                                                      @PathVariable UUID sessionId) {
 
+        // 1. 기존 세션에서 root 메시지 가져오기
         TextHistory root = textHistoryService.findRootBySessionId(sessionId);
         if (root == null) {
-            return ResponseEntity.badRequest().build(); // 또는 새로 생성
+            return ResponseEntity.badRequest().build(); // 세션이 존재하지 않을 경우
         }
 
+        // 2. 클릭한 노드를 subContent에 추가
         List<String> subList = root.getSubContent();
         if (subList == null) {
             subList = new ArrayList<>();
@@ -117,12 +117,23 @@ public class UserController {
         // 3. 저장
         textHistoryService.save(root);
 
-        // 4. AI 서버 요청
+        // 4. 전체 메시지 수집 및 AI 서버 호출
         List<String> messages = textHistoryService.getTextHistory(sessionId);
         Keyword aiResults = keywordService.requestToAIServer(messages);
         keywordService.save(aiResults);
 
-        return ResponseEntity.ok(aiResults);
+        // 5. Keyword → KeywordResponse 매핑
+        KeywordResponse response = KeywordResponse.builder()
+                .sessionId(sessionId)
+                .text(aiResults.getText())
+                .weight(aiResults.getWeight())
+                .sublist(aiResults.getSublist().stream()
+                        .map(SubKeywordDto::from)
+                        .toList())
+                .currentText(text)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
     @Operation(description = "논문 데이터 AI 서버에 검색 요청")
