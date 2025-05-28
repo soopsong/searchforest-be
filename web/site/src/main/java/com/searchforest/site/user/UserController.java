@@ -122,16 +122,11 @@ public class UserController {
         Keyword aiResults = keywordService.requestToAIServer(messages);
         keywordService.save(aiResults);
 
-        // 5. Keyword → KeywordResponse 매핑
-        KeywordResponse response = KeywordResponse.builder()
-                .sessionId(sessionId)
-                .text(aiResults.getText())
-                .weight(aiResults.getWeight())
-                .sublist(aiResults.getSublist().stream()
-                        .map(SubKeywordDto::from)
-                        .toList())
-                .currentText(text)
-                .build();
+
+        KeywordResponse response = KeywordResponseMapper.from(aiResults, sessionId);
+        response.setCurrentText(text);
+
+
 
         return ResponseEntity.ok(response);
     }
