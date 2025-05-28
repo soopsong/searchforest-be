@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +46,10 @@ public class PaperService {
                     requestEntity,
                     new ParameterizedTypeReference<List<Paper>>() {}
             );
+
+            if (responseEntity.getBody() != null) {
+                paperRepository.saveAll(responseEntity.getBody());
+            }
 
             return responseEntity.getBody();
         } catch (Exception e) {
@@ -99,6 +104,10 @@ public class PaperService {
         }
     }
 
+    public Paper findByPaperId(String paperId) {
+        return paperRepository.findByPaperId(paperId)
+                .orElse(null);
+    }
 
 
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////

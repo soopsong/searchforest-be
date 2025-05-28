@@ -6,7 +6,6 @@ dependencies {
 
     implementation project(":comp-keyword")
     implementation project(":comp-user")
-    implementation project(":comp-imageKeyword")
     implementation project(":web-site")
     implementation project(":comp-paper")
 

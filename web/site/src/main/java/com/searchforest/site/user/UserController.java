@@ -23,10 +23,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -47,7 +44,7 @@ public class UserController {
 
     //user 의 session List 를 보내는 api(상위 5개)
     @Operation(description = "user 의 history list를 제공하는 api")
-    @GetMapping("/history")
+    @GetMapping("/keyword/history")
     public ResponseEntity<List<TextHistoryResponse>> getUserHistories(@AuthenticationPrincipal User user) {
         List<Sessions> sessions = sessionService.getSessions(user.getId());
 
@@ -128,7 +125,7 @@ public class UserController {
         return ResponseEntity.ok(aiResults);
     }
 
-    @Operation(description = "논문 데이터 검색")
+    @Operation(description = "논문 데이터 AI 서버에 검색 요청")
     @GetMapping("/search/paper")
     public ResponseEntity<List<Paper>> paperSearch(@RequestParam String text) {
 
@@ -138,6 +135,41 @@ public class UserController {
         return ResponseEntity.ok(aiResults);
     }
 
+    @Operation(description = "유저가 paper 클릭시, history로 저장하기 위함")
+    @GetMapping("/paper")
+    public ResponseEntity<?> paperClicked(@AuthenticationPrincipal User user,
+                                          @RequestParam String paperId) {
+
+        // 2. AI 서버 요청
+        Paper paper = paperService.findByPaperId(paperId);
+        if(paper == null){
+            return ResponseEntity.status(404).body(Map.of("Not found", "해당 논문이 존재하지 않습니다."));
+        }
+
+        paperHistoryService.save(PaperHistory.builder()
+                .id(paper.getPaperId())
+                .title(paper.getTitle())
+                .userId(user.getId())
+                .searchedAt(LocalDateTime.now())
+                .url(paper.getPdfUrl())
+                .build());
+
+        return ResponseEntity.ok(paper);
+    }
+
+    @Operation(description = "paper history 조회")
+    @GetMapping("/history/paper")
+    public ResponseEntity<?> paperHistory(@AuthenticationPrincipal User user) {
+
+        // 2. AI 서버 요청
+        List<PaperHistory> paperHistory = paperHistoryService.getPaperHistory(user.getId());
+
+        if(paperHistory == null){
+            return ResponseEntity.status(404).body(Map.of("Not found", "논문 검색 기록이 없습니다."));
+        }
+
+        return ResponseEntity.ok(paperHistory);
+    }
 
     //test용 회원 정보 조회 api
     @GetMapping("/me")

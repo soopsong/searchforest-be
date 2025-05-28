@@ -20,8 +20,7 @@ public class PaperHistory {
 
     // paper history 저장용 entity
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private Long userId;
 

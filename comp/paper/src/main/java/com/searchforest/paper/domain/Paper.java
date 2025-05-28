@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.cglib.core.Local;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class Paper {
 
     @Id
+    @Column(name = "paper_id", nullable = false, unique = true)
     private String paperId; // 논문 식별의 기준 (arXiv 기준)
 
     private String title;
@@ -34,13 +37,28 @@ public class Paper {
 //    @ElementCollection
 //    private List<String> categories;
 
-    //private String pdfUrl;
 
+    private URL pdfUrl;
+
+    @PrePersist
+    public void prePersist() {
+        // pdfUrl 이 없는 경우 semantic scholar url로 설정
+
+        if (pdfUrl == null) {
+            try {
+                pdfUrl = new URL("https://www.semanticscholar.org/");
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     // Semantic Scholar에서 보강되는 데이터들
     private Integer citationCount;
 
     @ElementCollection
+    @CollectionTable(name = "paper_authors", joinColumns = @JoinColumn(name = "paper_id"))
+    @Column(name = "author")
     private List<String> authors;
 
     private int year;

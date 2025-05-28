@@ -10,8 +10,8 @@ import java.util.Optional;
 public interface PaperRepository extends JpaRepository<Paper, Long> {
     boolean existsByPaperId(String paperId);
 
-    @Query("SELECT p.paperId FROM Paper p")
-    List<String> findAllPaperIds();
+
+    Optional<Paper> findByPaperId(String paperId);
 
 
     Optional<Paper> findByTitle(String title);
