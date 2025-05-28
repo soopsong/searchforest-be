@@ -3,6 +3,7 @@ package com.searchforest.site.user;
 import com.searchforest.keyword.domain.Keyword;
 import com.searchforest.keyword.service.KeywordService;
 import com.searchforest.paper.domain.Paper;
+import com.searchforest.paper.repository.PaperRepository;
 import com.searchforest.paper.service.PaperService;
 import com.searchforest.site.dto.*;
 import com.searchforest.user.domain.PaperHistory;
@@ -32,6 +33,7 @@ public class UserController {
     private final TextHistoryService textHistoryService;
     private final PaperService paperService;
     private final PaperHistoryService paperHistoryService;
+    private final PaperRepository paperRepository;
 
     @Operation(description = "기본 홈페이지")
     @GetMapping("")
@@ -122,11 +124,8 @@ public class UserController {
         Keyword aiResults = keywordService.requestToAIServer(messages);
         keywordService.save(aiResults);
 
-
         KeywordResponse response = KeywordResponseMapper.from(aiResults, sessionId);
         response.setCurrentText(text);
-
-
 
         return ResponseEntity.ok(response);
     }
@@ -137,6 +136,8 @@ public class UserController {
 
         // 2. AI 서버 요청
         List<Paper> aiResults = paperService.requestToAIServer(text);
+
+        paperRepository.saveAll(aiResults);
 
         return ResponseEntity.ok(aiResults);
     }
