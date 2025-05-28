@@ -114,7 +114,9 @@ public class UserController {
             subList = new ArrayList<>();
             root.setSubContent(subList);
         }
-        subList.add(text);
+        if (!subList.contains(text) && !root.getRootContent().equals(text)) {
+            subList.add(text);
+        }
 
         // 3. 저장
         textHistoryService.save(root);
