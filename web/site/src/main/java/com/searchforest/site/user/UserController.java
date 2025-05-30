@@ -123,7 +123,7 @@ public class UserController {
 
         // 4. 전체 메시지 수집 및 AI 서버 호출
         List<String> messages = textHistoryService.getTextHistory(sessionId);
-        Keyword aiResults = keywordService.requestToAIServer(messages);
+        Keyword aiResults = keywordService.requestToAIServerWhenClickNode(messages);
         keywordService.save(aiResults);
 
         KeywordResponse response = KeywordResponseMapper.from(aiResults, sessionId);

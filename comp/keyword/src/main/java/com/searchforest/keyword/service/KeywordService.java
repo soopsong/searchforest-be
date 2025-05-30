@@ -59,34 +59,34 @@ public class KeywordService {
 
 
     //Todo node 클릭시, AI 서버에 요청하는 method. 현재는 root node만 요청함. list로 요청 가능하도록 수정 필요.
-//    public Keyword requestToAIServerWhenClickNode(List<String> messages) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//        Map<String, Object> body = new HashMap<>();
-//        body.put("root", messages.get(0));
-//        body.put("top1", 5);
-//        body.put("top2", 3);
-//
-//        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-//
-//        try {
-//            ResponseEntity<JsonNode> response = restTemplate.postForEntity(
-//                    aiServerUrlWhenClickNode,
-//                    requestEntity,
-//                    JsonNode.class
-//            );
-//
-//            JsonNode root = response.getBody().get("keyword_tree");
-//
-//            return GraphResponseMapper.fromGraphJson(root);
-//
-////          return responseEntity.getBody();
-//        } catch (Exception e) {
-//            //return new Keyword();
-//            return mockDataInjection(messages);
-//        }
-//    }
+    public Keyword requestToAIServerWhenClickNode(List<String> messages) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("root", messages.get(messages.size()-1));
+        body.put("top1", 5);
+        body.put("top2", 3);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<JsonNode> response = restTemplate.postForEntity(
+                    aiServerUrl,
+                    requestEntity,
+                    JsonNode.class
+            );
+
+            JsonNode root = response.getBody().get("keyword_tree");
+
+            return GraphResponseMapper.fromGraphJson(root);
+
+//          return responseEntity.getBody();
+        } catch (Exception e) {
+            //return new Keyword();
+            return mockDataInjection(messages);
+        }
+    }
 
 
 
