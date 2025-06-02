@@ -5,6 +5,7 @@ import com.searchforest.keyword.domain.Keyword;
 import com.searchforest.keyword.domain.LeafKeyword;
 import com.searchforest.keyword.domain.SubKeyword;
 
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 public class GraphResponseMapper {
@@ -15,6 +16,18 @@ public class GraphResponseMapper {
                 .weight(keywordTree.get("value").asDouble())
                 .sublist(
                         StreamSupport.stream(keywordTree.get("children").spliterator(), false)
+                                .map(GraphResponseMapper::toSubKeyword)
+                                .toList()
+                )
+                .build();
+    }
+
+    public static Keyword toKeyword(JsonNode node) {
+        return Keyword.builder()
+                .text(node.get("id").asText())
+                .weight(node.get("value").asDouble())
+                .sublist(
+                        StreamSupport.stream(node.get("children").spliterator(), false)
                                 .map(GraphResponseMapper::toSubKeyword)
                                 .toList()
                 )
@@ -38,5 +51,17 @@ public class GraphResponseMapper {
                 node.get("id").asText(),
                 node.get("value").asDouble()
         );
+    }
+
+    public static List<Keyword> fromGraphJsonToList(JsonNode keywordTree) {
+        JsonNode children = keywordTree.get("children");
+
+        if (children == null || !children.isArray()) {
+            throw new IllegalArgumentException("keyword_tree 내부에 children 배열이 없음");
+        }
+
+        return StreamSupport.stream(children.spliterator(), false)
+                .map(GraphResponseMapper::toKeyword)
+                .toList();
     }
 }

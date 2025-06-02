@@ -71,6 +71,7 @@ public class PaperService {
             }
             int year = paperNode.path("year").asInt();
             int citationCount = paperNode.path("citation_count").asInt();
+            String summary = paperNode.path("summary").asText();
             double simScore = paperNode.path("sim_score").asDouble();
 
             Paper paper = Paper.builder()
@@ -81,6 +82,7 @@ public class PaperService {
                     .year(year)
                     .citationCount(citationCount)
                     .simScore(simScore)
+                    .summary(summary)
                     .build();
 
             // pdfUrl 지정 (항상 null이면 prePersist로 들어가게 두거나 수동으로도 지정 가능)

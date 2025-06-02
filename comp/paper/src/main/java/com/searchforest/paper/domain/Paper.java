@@ -31,6 +31,10 @@ public class Paper {
     @Column(name = "abstract_text", columnDefinition = "TEXT")
     private String abstractText;
 
+    @Lob
+    @Column(name = "summary", columnDefinition = "TEXT")
+    private String summary;
+
 
     //private String published;
 

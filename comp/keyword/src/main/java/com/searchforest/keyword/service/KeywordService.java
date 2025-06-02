@@ -12,11 +12,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -27,13 +29,13 @@ public class KeywordService {
     private final String aiServerUrl = "http://52.78.34.56:8002/graph";
     private final String aiServerUrlWhenClickNode = "http://52.78.34.56:8004/summarize";
 
-    public Keyword requestToAIServer(List<String> messages) {
+    public List<List<Keyword>> requestToAIServer(String text) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> body = new HashMap<>();
-        body.put("root", messages.get(0));
-        body.put("top1", 5);
+        body.put("root", text);
+        body.put("top1", 10); // 10개 요청
         body.put("top2", 3);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
@@ -46,17 +48,26 @@ public class KeywordService {
             );
 
             JsonNode root = response.getBody().get("keyword_tree");
+            if (root == null || !root.has("children")) {
+                throw new IllegalStateException("keyword_tree 또는 children가 존재하지 않음");
+            }
 
-            return GraphResponseMapper.fromGraphJson(root);
+            JsonNode childrenArray = root.get("children");
 
-//            return responseEntity.getBody();
+            List<Keyword> fullList = StreamSupport.stream(childrenArray.spliterator(), false)
+                    .map(GraphResponseMapper::toKeyword) // 이거 새로 만들어야 해
+                    .toList();
+
+            return List.of(
+                    fullList.subList(0, 5),
+                    fullList.subList(5, 10)
+            );
+
         } catch (Exception e) {
-            //return new Keyword();
-            return mockDataInjection(messages);
+            //return List.of(mockDataInjection(messages)); // fallback
+            return null;
         }
-
     }
-
 
     //Todo node 클릭시, AI 서버에 요청하는 method. 현재는 root node만 요청함. list로 요청 가능하도록 수정 필요.
     public Keyword requestToAIServerWhenClickNode(List<String> messages) {

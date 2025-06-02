@@ -71,7 +71,7 @@ public class UserController {
     // GET /search?keyword=XXX&sessionId=XXX
     @Operation(description = "회원 keyword 검색(최초 검색, session 생성)")
     @GetMapping("/search/keyword")
-    public ResponseEntity<KeywordResponse> textSearch(@AuthenticationPrincipal User user,
+    public ResponseEntity<MultiKeywordResponse> textSearch(@AuthenticationPrincipal User user,
                                                       @RequestParam String text) {
 
         // session 생성
@@ -84,21 +84,36 @@ public class UserController {
                 .timestamp(LocalDateTime.now())
                 .build());
 
-        List<String> messages = textHistoryService.getTextHistory(newSession.getId());
+//        List<String> messages = textHistoryService.getTextHistory(newSession.getId());
 
-        Keyword aiResults = keywordService.requestToAIServer(messages);
+        List<List<Keyword>> aiResults = keywordService.requestToAIServer(text);
 
         //Todo 저장해야해?
-        keywordService.save(aiResults);
+//        keywordService.save(aiResults);
 
-        KeywordResponse response = KeywordResponseMapper.from(aiResults, newSession.getId());
-        response.setCurrentText(text);
+        MultiKeywordResponse response = MultiKeywordResponse.builder()
+                .sessionId(newSession.getId())
+                .group1(KeywordResponseMapper.fromList(aiResults.get(0)))
+                .group2(KeywordResponseMapper.fromList(aiResults.get(1)))
+                .currentText(text)
+                .build();
+
         return ResponseEntity.ok(response);
     }
 
+    @Operation(description = "회원 ")
+    @GetMapping("/search/refresh/{index}")
+    public ResponseEntity<KeywordResponse> textRefresh(@AuthenticationPrincipal User user,
+                                                      @RequestParam String text, @PathVariable int index) {
+
+
+        return null;
+    }
+
+
     @Operation(description = "회원 keyword 검색(해당 session 내, node 클릭으로 이어지는 검색)")
     @GetMapping("/search/keyword/{sessionId}")
-    public ResponseEntity<KeywordResponse> textSearch(@AuthenticationPrincipal User user,
+    public ResponseEntity<MultiKeywordResponse> textSearch(@AuthenticationPrincipal User user,
                                                       @RequestParam String text,
                                                       @PathVariable UUID sessionId) {
 
@@ -122,12 +137,16 @@ public class UserController {
         textHistoryService.save(root);
 
         // 4. 전체 메시지 수집 및 AI 서버 호출
-        List<String> messages = textHistoryService.getTextHistory(sessionId);
-        Keyword aiResults = keywordService.requestToAIServerWhenClickNode(messages);
-        keywordService.save(aiResults);
+        //List<String> messages = textHistoryService.getTextHistory(sessionId);
+        List<List<Keyword>> aiResults = keywordService.requestToAIServer(text);
+//        keywordService.save(aiResults);
 
-        KeywordResponse response = KeywordResponseMapper.from(aiResults, sessionId);
-        response.setCurrentText(text);
+        MultiKeywordResponse response = MultiKeywordResponse.builder()
+                .sessionId(sessionId)
+                .group1(KeywordResponseMapper.fromList(aiResults.get(0)))
+                .group2(KeywordResponseMapper.fromList(aiResults.get(1)))
+                .currentText(text)
+                .build();
 
         return ResponseEntity.ok(response);
     }
