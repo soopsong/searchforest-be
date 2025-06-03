@@ -1,29 +1,27 @@
 package com.searchforest.site.dto;
 
 import com.searchforest.keyword.domain.SubKeyword;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.List;
 
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class SubKeywordDto {
     private String text;
     private double weight;
     private List<LeafKeywordDto> sublist;
 
-    public static SubKeywordDto from(SubKeyword subKeyword) {
-        return new SubKeywordDto(
-                subKeyword.getText(),
-                subKeyword.getWeight(),
-                subKeyword.getSublist().stream()
+    public static SubKeywordDto from(SubKeyword sub) {
+        return SubKeywordDto.builder()
+                .text(sub.getText())
+                .weight(sub.getWeight())
+                .sublist(sub.getSublist().stream()
                         .map(LeafKeywordDto::from)
-                        .toList()
-        );
+                        .toList())
+                .build();
     }
-
 }
 

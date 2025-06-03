@@ -1,21 +1,20 @@
 package com.searchforest.site.dto;
 
 import com.searchforest.keyword.domain.LeafKeyword;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class LeafKeywordDto {
     private String text;
     private double weight;
 
-    public static LeafKeywordDto from(LeafKeyword leafKeyword) {
+    public static LeafKeywordDto from(LeafKeyword leaf) {
         return LeafKeywordDto.builder()
-                .text(leafKeyword.getText())
-                .weight(leafKeyword.getWeight())
+                .text(leaf.getText())
+                .weight(leaf.getWeight())
                 .build();
     }
 }

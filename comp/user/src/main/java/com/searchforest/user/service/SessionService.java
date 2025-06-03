@@ -36,4 +36,7 @@ public class SessionService {
         sessionRepository.save(session);
     }
 
+    public Sessions findBySessionId(UUID sessionId) {
+        return sessionRepository.findById(sessionId);
+    }
 }

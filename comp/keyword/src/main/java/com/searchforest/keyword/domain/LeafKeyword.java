@@ -13,6 +13,7 @@ import lombok.*;
 public class LeafKeyword {
     @Id
     @GeneratedValue
+    @JsonIgnore
     private Long id;
 
     private String text;

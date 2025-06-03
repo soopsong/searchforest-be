@@ -10,9 +10,11 @@ import com.searchforest.user.domain.PaperHistory;
 import com.searchforest.user.domain.Sessions;
 import com.searchforest.user.domain.TextHistory;
 import com.searchforest.user.domain.User;
+import com.searchforest.user.repository.SessionRepository;
 import com.searchforest.user.service.PaperHistoryService;
 import com.searchforest.user.service.SessionService;
 import com.searchforest.user.service.TextHistoryService;
+import com.searchforest.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -71,32 +73,23 @@ public class UserController {
     // GET /search?keyword=XXX&sessionId=XXX
     @Operation(description = "회원 keyword 검색(최초 검색, session 생성)")
     @GetMapping("/search/keyword")
-    public ResponseEntity<MultiKeywordResponse> textSearch(@AuthenticationPrincipal User user,
-                                                      @RequestParam String text) {
+    public ResponseEntity<List<KeywordResponse>> textSearch(@AuthenticationPrincipal User user,
+                                                            @RequestParam String text) {
 
-        // session 생성
         Sessions newSession = sessionService.createSession(user.getId());
+        UUID sessionId = newSession.getId();
 
-        // 검색한 메시지 저장
         textHistoryService.save(TextHistory.builder()
-                .sessionId(newSession.getId())
+                .sessionId(sessionId)
                 .rootContent(text)
                 .timestamp(LocalDateTime.now())
                 .build());
 
-//        List<String> messages = textHistoryService.getTextHistory(newSession.getId());
+        List<Keyword> aiResults = keywordService.requestToAIServer(text);
 
-        List<List<Keyword>> aiResults = keywordService.requestToAIServer(text);
-
-        //Todo 저장해야해?
-//        keywordService.save(aiResults);
-
-        MultiKeywordResponse response = MultiKeywordResponse.builder()
-                .sessionId(newSession.getId())
-                .group1(KeywordResponseMapper.fromList(aiResults.get(0)))
-                .group2(KeywordResponseMapper.fromList(aiResults.get(1)))
-                .currentText(text)
-                .build();
+        List<KeywordResponse> response = aiResults.stream()
+                .map(keyword -> KeywordResponse.from(keyword, sessionId))
+                .toList();
 
         return ResponseEntity.ok(response);
     }
@@ -113,17 +106,22 @@ public class UserController {
 
     @Operation(description = "회원 keyword 검색(해당 session 내, node 클릭으로 이어지는 검색)")
     @GetMapping("/search/keyword/{sessionId}")
-    public ResponseEntity<MultiKeywordResponse> textSearch(@AuthenticationPrincipal User user,
-                                                      @RequestParam String text,
-                                                      @PathVariable UUID sessionId) {
-
-        // 1. 기존 세션에서 root 메시지 가져오기
+    public ResponseEntity<List<KeywordResponse>> textSearch(@AuthenticationPrincipal User user,
+                                                            @RequestParam String text,
+                                                            @PathVariable UUID sessionId) {
         TextHistory root = textHistoryService.findRootBySessionId(sessionId);
+
+        Sessions session = sessionService.findBySessionId(sessionId);
+
+        session.setUpdatedAt(LocalDateTime.now());
+        sessionService.save(session);
+
         if (root == null) {
-            return ResponseEntity.badRequest().build(); // 세션이 존재하지 않을 경우
+            return ResponseEntity.badRequest().build();
         }
 
-        // 2. 클릭한 노드를 subContent에 추가
+        root.setTimestamp(LocalDateTime.now());
+
         List<String> subList = root.getSubContent();
         if (subList == null) {
             subList = new ArrayList<>();
@@ -133,20 +131,15 @@ public class UserController {
             subList.add(text);
         }
 
-        // 3. 저장
         textHistoryService.save(root);
 
-        // 4. 전체 메시지 수집 및 AI 서버 호출
-        //List<String> messages = textHistoryService.getTextHistory(sessionId);
-        List<List<Keyword>> aiResults = keywordService.requestToAIServer(text);
-//        keywordService.save(aiResults);
+        root = textHistoryService.findRootBySessionId(sessionId);
 
-        MultiKeywordResponse response = MultiKeywordResponse.builder()
-                .sessionId(sessionId)
-                .group1(KeywordResponseMapper.fromList(aiResults.get(0)))
-                .group2(KeywordResponseMapper.fromList(aiResults.get(1)))
-                .currentText(text)
-                .build();
+        List<Keyword> aiResults = keywordService.requestToAIServer(text);
+
+        List<KeywordResponse> response = aiResults.stream()
+                .map(keyword -> KeywordResponse.from(keyword, sessionId))
+                .toList();
 
         return ResponseEntity.ok(response);
     }
