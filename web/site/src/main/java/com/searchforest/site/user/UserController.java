@@ -69,12 +69,11 @@ public class UserController {
 //    }
 //
 
-    // text 검색
-    // GET /search?keyword=XXX&sessionId=XXX
     @Operation(description = "회원 keyword 검색(최초 검색, session 생성)")
     @GetMapping("/search/keyword")
     public ResponseEntity<List<KeywordResponse>> textSearch(@AuthenticationPrincipal User user,
-                                                            @RequestParam String text) {
+                                                            @RequestParam String text,
+                                                            @RequestParam(required = false) boolean cit) {
 
         Sessions newSession = sessionService.createSession(user.getId());
         UUID sessionId = newSession.getId();
@@ -87,6 +86,8 @@ public class UserController {
 
         List<Keyword> aiResults = keywordService.requestToAIServer(text);
 
+        if(cit) keywordService.enrichCitationCounts(aiResults);
+
         List<KeywordResponse> response = aiResults.stream()
                 .map(keyword -> KeywordResponse.from(keyword, sessionId))
                 .toList();
@@ -94,21 +95,12 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(description = "회원 ")
-    @GetMapping("/search/refresh/{index}")
-    public ResponseEntity<KeywordResponse> textRefresh(@AuthenticationPrincipal User user,
-                                                      @RequestParam String text, @PathVariable int index) {
-
-
-        return null;
-    }
-
-
     @Operation(description = "회원 keyword 검색(해당 session 내, node 클릭으로 이어지는 검색)")
     @GetMapping("/search/keyword/{sessionId}")
     public ResponseEntity<List<KeywordResponse>> textSearch(@AuthenticationPrincipal User user,
                                                             @RequestParam String text,
-                                                            @PathVariable UUID sessionId) {
+                                                            @PathVariable UUID sessionId,
+                                                            @RequestParam(required = false) boolean cit) {
         TextHistory root = textHistoryService.findRootBySessionId(sessionId);
 
         Sessions session = sessionService.findBySessionId(sessionId);
@@ -137,9 +129,12 @@ public class UserController {
 
         List<Keyword> aiResults = keywordService.requestToAIServer(text);
 
+        if(cit) keywordService.enrichCitationCounts(aiResults);
+
         List<KeywordResponse> response = aiResults.stream()
                 .map(keyword -> KeywordResponse.from(keyword, sessionId))
                 .toList();
+
 
         return ResponseEntity.ok(response);
     }

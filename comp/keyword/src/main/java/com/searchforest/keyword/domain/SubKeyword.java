@@ -28,6 +28,7 @@ public class SubKeyword {
     @JsonIgnore
     private Keyword keyword;
 
+    private Integer totalCitation;
 
     @OneToMany(mappedBy = "subKeyword", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LeafKeyword> sublist;

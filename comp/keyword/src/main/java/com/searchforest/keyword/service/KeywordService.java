@@ -6,6 +6,8 @@ import com.searchforest.keyword.domain.Keyword;
 import com.searchforest.keyword.domain.LeafKeyword;
 import com.searchforest.keyword.domain.SubKeyword;
 import com.searchforest.keyword.repository.KeywordRepository;
+import com.searchforest.paper.domain.Paper;
+import com.searchforest.paper.service.PaperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,10 +27,12 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public class KeywordService {
     private final KeywordRepository keywordRepository;
+    private final PaperService paperService;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String aiServerUrl = "http://52.78.34.56:8002/graph";
     private final String aiServerUrlWhenClickNode = "http://52.78.34.56:8004/summarize";
+
 
     public List<Keyword> requestToAIServer(String text) {
         HttpHeaders headers = new HttpHeaders();
@@ -59,6 +63,30 @@ public class KeywordService {
             e.printStackTrace(); // 로그 기록 (실 서비스에서는 로그로 처리 권장)
             return Collections.emptyList(); // fallback: 빈 리스트 반환
         }
+    }
+
+
+    public void enrichCitationCounts(List<Keyword> keywordList) {
+        for (Keyword keyword : keywordList) {
+            // Root keyword
+            List<Paper> papersForKeyword = paperService.requestToAIServer(keyword.getText());
+            keyword.setTotalCitation(sumCitations(papersForKeyword));
+
+            // SubKeywords
+            for (SubKeyword sub : keyword.getSublist()) {
+                List<Paper> papersForSub = paperService.requestToAIServer(sub.getText());
+                sub.setTotalCitation(sumCitations(papersForSub));
+
+                for (LeafKeyword leaf : sub.getSublist()) {
+                    List<Paper> papersForLeaf = paperService.requestToAIServer(leaf.getText());
+                    leaf.setTotalCitation(sumCitations(papersForLeaf));
+                }
+            }
+        }
+    }
+
+    private int sumCitations(List<Paper> papers) {
+        return papers.stream().mapToInt(Paper::getCitationCount).sum();
     }
 
 

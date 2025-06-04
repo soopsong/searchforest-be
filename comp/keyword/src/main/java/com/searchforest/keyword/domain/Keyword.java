@@ -2,6 +2,7 @@ package com.searchforest.keyword.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +30,7 @@ public class Keyword {
     private String text;
     private double weight;
 
-    private Long citationCount;
+    private Integer totalCitation;
 
     // Todo
     // depth 관련 설정을 어떻게 할건지?

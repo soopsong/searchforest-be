@@ -25,6 +25,8 @@ public class LeafKeyword {
     @JsonIgnore
     private SubKeyword subKeyword;
 
+    private Integer totalCitation;
+
     public static LeafKeyword of(String text, double value) {
         return LeafKeyword.builder()
                 .text(text)
