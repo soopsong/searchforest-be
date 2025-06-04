@@ -157,11 +157,10 @@ public class UserController {
     }
 
     @Operation(description = "유저가 paper 클릭시, history로 저장하기 위함")
-    @GetMapping("/paper")
+    @PostMapping("/paper")
     public ResponseEntity<?> paperClicked(@AuthenticationPrincipal User user,
                                           @RequestParam String paperId) {
 
-        // 2. AI 서버 요청
         Paper paper = paperService.findByPaperId(paperId);
         if(paper == null){
             return ResponseEntity.status(404).body(Map.of("Not found", "해당 논문이 존재하지 않습니다."));
