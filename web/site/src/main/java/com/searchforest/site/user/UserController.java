@@ -2,6 +2,9 @@ package com.searchforest.site.user;
 
 import com.searchforest.keyword.domain.Keyword;
 import com.searchforest.keyword.service.KeywordService;
+import com.searchforest.log.domain.UserKeywordLog;
+import com.searchforest.log.domain.UserPaperLog;
+import com.searchforest.log.service.LogService;
 import com.searchforest.paper.domain.Paper;
 import com.searchforest.paper.repository.PaperRepository;
 import com.searchforest.paper.service.PaperService;
@@ -36,6 +39,8 @@ public class UserController {
     private final PaperService paperService;
     private final PaperHistoryService paperHistoryService;
     private final PaperRepository paperRepository;
+
+    private final LogService logService;
 
     @Operation(description = "기본 홈페이지")
     @GetMapping("")
@@ -92,6 +97,15 @@ public class UserController {
                 .map(keyword -> KeywordResponse.from(keyword, sessionId))
                 .toList();
 
+        logService.save(UserKeywordLog.builder()
+                .sessionId(sessionId)
+                .userId(user.getId())
+                .startedAt(LocalDateTime.now())
+                .endedAt(LocalDateTime.now())
+                .searchedKeywords(new ArrayList<>(List.of(text)))
+                .keywordSearchCount(1)
+                .build());
+
         return ResponseEntity.ok(response);
     }
 
@@ -135,6 +149,12 @@ public class UserController {
                 .map(keyword -> KeywordResponse.from(keyword, sessionId))
                 .toList();
 
+        //log 저장.
+        UserKeywordLog log = logService.findBySessionId(sessionId);
+        log.getSearchedKeywords().add(text);
+        log.setEndedAt(LocalDateTime.now());
+        log.setKeywordSearchCount(log.getKeywordSearchCount() + 1);
+        logService.save(log);
 
         return ResponseEntity.ok(response);
     }
@@ -168,6 +188,20 @@ public class UserController {
                 .searchedAt(LocalDateTime.now())
                 .url(paper.getPdfUrl())
                 .build());
+
+        UserPaperLog userPaperLog = logService.findUserPaperByUserId(user.getId());
+
+        if(userPaperLog == null){
+            logService.save(UserPaperLog.builder()
+                    .userId(user.getId())
+                    .paperSearchCount(1)
+                    .searchedPapers(new ArrayList<>(List.of(paperId)))
+                    .build());
+        }else{
+            userPaperLog.getSearchedPapers().add(paperId);
+            userPaperLog.setPaperSearchCount(userPaperLog.getPaperSearchCount() + 1);
+            logService.save(userPaperLog);
+        }
 
         return ResponseEntity.ok(paper);
     }

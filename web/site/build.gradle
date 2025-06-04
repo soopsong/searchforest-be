@@ -5,5 +5,7 @@ dependencies {
     implementation project(":comp-keyword")
     implementation project(":comp-user")
     implementation project(":comp-paper")
+
+    implementation project(":comp-log")
 }
 

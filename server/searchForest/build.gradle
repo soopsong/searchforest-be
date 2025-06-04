@@ -8,5 +8,5 @@ dependencies {
     implementation project(":comp-user")
     implementation project(":web-site")
     implementation project(":comp-paper")
-
+    implementation project(":comp-log")
 }
