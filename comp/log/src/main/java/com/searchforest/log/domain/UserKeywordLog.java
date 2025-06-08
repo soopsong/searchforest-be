@@ -17,6 +17,7 @@ import java.util.UUID;
 @Builder
 @Entity
 public class UserKeywordLog {
+
     @Id
     @GeneratedValue
     private Long id;
@@ -31,6 +32,5 @@ public class UserKeywordLog {
 
     @ElementCollection
     private List<String> searchedKeywords;
-
 
 }

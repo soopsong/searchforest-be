@@ -77,8 +77,7 @@ public class UserController {
     @Operation(description = "회원 keyword 검색(최초 검색, session 생성)")
     @GetMapping("/search/keyword")
     public ResponseEntity<List<KeywordResponse>> textSearch(@AuthenticationPrincipal User user,
-                                                            @RequestParam String text,
-                                                            @RequestParam(required = false) boolean cit) {
+                                                            @RequestParam String text) {
 
         Sessions newSession = sessionService.createSession(user.getId());
         UUID sessionId = newSession.getId();
@@ -91,7 +90,7 @@ public class UserController {
 
         List<Keyword> aiResults = keywordService.requestToAIServer(text);
 
-        if(cit) keywordService.enrichCitationCounts(aiResults);
+        keywordService.enrichCitationCounts(aiResults);
 
         List<KeywordResponse> response = aiResults.stream()
                 .map(keyword -> KeywordResponse.from(keyword, sessionId))
@@ -113,8 +112,8 @@ public class UserController {
     @GetMapping("/search/keyword/{sessionId}")
     public ResponseEntity<List<KeywordResponse>> textSearch(@AuthenticationPrincipal User user,
                                                             @RequestParam String text,
-                                                            @PathVariable UUID sessionId,
-                                                            @RequestParam(required = false) boolean cit) {
+                                                            @PathVariable UUID sessionId) {
+
         TextHistory root = textHistoryService.findRootBySessionId(sessionId);
 
         Sessions session = sessionService.findBySessionId(sessionId);
@@ -143,7 +142,7 @@ public class UserController {
 
         List<Keyword> aiResults = keywordService.requestToAIServer(text);
 
-        if(cit) keywordService.enrichCitationCounts(aiResults);
+        keywordService.enrichCitationCounts(aiResults);
 
         List<KeywordResponse> response = aiResults.stream()
                 .map(keyword -> KeywordResponse.from(keyword, sessionId))
