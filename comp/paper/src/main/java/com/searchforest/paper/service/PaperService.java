@@ -23,7 +23,7 @@ import java.util.*;
 public class PaperService {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String aiServerUrl = "http://52.78.34.56:8003/papers";
+    private final String aiServerUrl = "http://15.165.143.12:8003/papers";
     private final PaperRepository paperRepository;
 
     public List<Paper> requestToAIServer(String keyword) {

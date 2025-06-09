@@ -30,8 +30,8 @@ public class KeywordService {
     private final PaperService paperService;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String aiServerUrl = "http://52.78.34.56:8002/graph";
-    private final String aiServerUrlWhenClickNode = "http://52.78.34.56:8004/summarize";
+    private final String aiServerUrl = "http://15.165.143.12:8002/graph";
+    private final String aiServerUrlWhenClickNode = "http://15.165.143.12:8004/summarize";
 
 
     public List<Keyword> requestToAIServer(String text) {
