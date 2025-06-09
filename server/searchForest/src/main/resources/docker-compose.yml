@@ -11,9 +11,6 @@ services:
     image: ghcr.io/soopsong/papers-service:latest
     ports:
       - "8003:8003"
-    volumes:
-      - ./searchforest-ai-dataset/test_checkpoint_collected.json:/app/test_checkpoint_collected.json
-      - ./searchforest-ai-dataset/kw2pids.json:/app/kw2pids.json
     networks:
       - backend
 
