@@ -26,11 +26,13 @@ subprojects {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
-//    java {
-//        toolchain {
-//            languageVersion = JavaLanguageVersion.of(17)
-//        }
-//    }
+    if (!System.getenv().containsKey("CI") && System.getProperty("os.name").toLowerCase().contains("windows")) {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(17)
+            }
+        }
+    }
 
     configurations {
         compileOnly {
