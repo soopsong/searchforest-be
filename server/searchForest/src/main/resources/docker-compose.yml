@@ -12,7 +12,7 @@ services:
     ports:
       - "8003:8003"
     volumes:
-      - ./data/papers.json:/app/data/papers.json
+      - ./data:/app/data
     networks:
       - backend
 
