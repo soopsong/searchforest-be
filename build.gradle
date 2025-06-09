@@ -26,11 +26,11 @@ subprojects {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
-        }
-    }
+//    java {
+//        toolchain {
+//            languageVersion = JavaLanguageVersion.of(17)
+//        }
+//    }
 
     configurations {
         compileOnly {
