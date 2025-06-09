@@ -11,6 +11,8 @@ services:
     image: ghcr.io/soopsong/papers-service:latest
     ports:
       - "8003:8003"
+    volumes:
+      - ./data/papers.json:/app/data/papers.json
     networks:
       - backend
 

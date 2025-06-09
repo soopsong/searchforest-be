@@ -72,8 +72,8 @@ public class Paper {
 //    @ElementCollection
 //    private List<String> referenceIds;
 
-//    @ElementCollection
-//    private List<String> s2FieldsOfStudy;
+    @ElementCollection
+    private List<String> s2FieldsOfStudy;
 
 
 //    private Boolean isOpenAccess;

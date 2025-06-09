@@ -13,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -38,9 +40,11 @@ public class PaperService {
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                    aiServerUrl,
-                    requestEntity,
+            String url = aiServerUrl + "?query=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8)
+                    + "&page=1&page_size=10";
+
+            ResponseEntity<String> response = restTemplate.getForEntity(
+                    url,
                     String.class
             );
 
