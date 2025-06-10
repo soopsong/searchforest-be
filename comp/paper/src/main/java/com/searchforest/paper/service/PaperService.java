@@ -23,7 +23,7 @@ import java.util.*;
 public class PaperService {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String aiServerUrl = "http://15.165.143.12:8003/papers";
+    private final String aiServerUrl = "http://15.165.143.12:8000/papers";
     private final PaperRepository paperRepository;
 
     public List<Paper> requestToAIServer(String keyword) {
@@ -40,7 +40,7 @@ public class PaperService {
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
-            String url = aiServerUrl + "?query=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8)
+            String url = aiServerUrl + "?kw=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8)
                     + "&page=1&page_size=10";
 
             ResponseEntity<String> response = restTemplate.getForEntity(
@@ -68,39 +68,62 @@ public class PaperService {
         for (JsonNode paperNode : papersNode) {
             String paperId = paperNode.path("paper_id").asText();
             String title = paperNode.path("title").asText();
-            String abstractText = paperNode.path("abstract").asText();
-            List<String> authors = new ArrayList<>();
-            for (JsonNode authorNode : paperNode.path("authors")) {
-                authors.add(authorNode.asText());
-            }
+            String abstractText = paperNode.path("abstract").isNull() ? null : paperNode.path("abstract").asText();
+            String venue = paperNode.path("venue").asText();
             int year = paperNode.path("year").asInt();
             int citationCount = paperNode.path("citation_count").asInt();
-            String summary = paperNode.path("summary").asText();
+            int referenceCount = paperNode.path("reference_count").asInt();
+            int influentialCitationCount = paperNode.path("influentialCitationCount").asInt();
             double simScore = paperNode.path("sim_score").asDouble();
+
+            // Authors
+            List<String> authors = new ArrayList<>();
+            for (JsonNode authorNode : paperNode.path("authors")) {
+                authors.add(authorNode.path("name").asText());
+            }
+
+            // Fields of Study
+            List<String> fieldsOfStudy = new ArrayList<>();
+            for (JsonNode fieldNode : paperNode.path("fieldsOfStudy")) {
+                fieldsOfStudy.add(fieldNode.asText());
+            }
+
+            // TL;DR Summary
+            String summary = paperNode.path("tldr").isObject() && paperNode.path("tldr").has("text")
+                    ? paperNode.path("tldr").path("text").asText()
+                    : paperNode.path("tldr").asText(null); // fallback
+
+            // URL → pdfUrl에 반영
+            URL pdfUrl = null;
+            try {
+                String urlText = paperNode.path("url").asText();
+                pdfUrl = (urlText != null && !urlText.isEmpty()) ? new URL(urlText) : null;
+            } catch (MalformedURLException e) {
+                e.printStackTrace(); // fallback은 @PrePersist에서 처리됨
+            }
 
             Paper paper = Paper.builder()
                     .paperId(paperId)
                     .title(title)
                     .abstractText(abstractText)
-                    .authors(authors)
+                    .summary(summary)
+                    .venue(venue)
                     .year(year)
                     .citationCount(citationCount)
+                    .referenceCount(referenceCount)
+                    .influentialCitationCount(influentialCitationCount)
+                    .authors(authors)
+                    .s2FieldsOfStudy(fieldsOfStudy)
                     .simScore(simScore)
-                    .summary(summary)
+                    .pdfUrl(pdfUrl) // ← semantic URL 반영
                     .build();
-
-            // pdfUrl 지정 (항상 null이면 prePersist로 들어가게 두거나 수동으로도 지정 가능)
-            try {
-                paper.setPdfUrl(new URL("https://www.semanticscholar.org/"));
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
 
             papers.add(paper);
         }
 
         return papers;
     }
+
 
     public List<Paper> mockDataInjection(String keyword){
         // ✅ Fallback mock data

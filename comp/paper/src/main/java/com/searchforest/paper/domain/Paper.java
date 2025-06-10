@@ -57,8 +57,11 @@ public class Paper {
         }
     }
 
+    private Integer referenceCount;
     // Semantic Scholar에서 보강되는 데이터들
     private Integer citationCount;
+
+    private Integer influentialCitationCount;
 
     @ElementCollection
     @CollectionTable(name = "paper_authors", joinColumns = @JoinColumn(name = "paper_id"))
@@ -74,6 +77,9 @@ public class Paper {
 
     @ElementCollection
     private List<String> s2FieldsOfStudy;
+
+    private String venue;
+
 
 
 //    private Boolean isOpenAccess;
