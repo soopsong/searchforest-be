@@ -10,7 +10,7 @@ services:
   papers-service:
     image: ghcr.io/soopsong/papers-service:latest
     ports:
-      - "8003:8003"
+      - "8000:8000"
     networks:
       - backend
 
