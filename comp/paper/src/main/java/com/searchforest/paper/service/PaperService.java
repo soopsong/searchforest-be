@@ -106,13 +106,13 @@ public class PaperService {
                     .paperId(paperId)
                     .title(title)
                     .abstractText(abstractText)
-//                    .summary(summary)
-                    .summary("in this paper we study a model of two qubits equation can also be derived at zero - temperature if we employ a lorentz - type system - bath coupling spectrum .\n" +
-                            "the set of hierarchy equations derived here provides an exact treatment of decoherence , and employs neither the rotating - wave , born , nor markovian approximations .\n" +
-                            "we use the hierarchy equation method to study the time - correlation function of the bath of chemical and biophysical systems .\n" +
-                            "we show that the temperature of qubit devices is a promising method for studying strong- and ultrastrong- coupling physics .\n" +
-                            "the derivation of the hierarchy are truncated to second order .\n" +
-                            "high - order correlations are shown to be effective in the single - mode case , of the entire time scale of exponential functions .")
+                    .summary(summary)
+//                    .summary("in this paper we study a model of two qubits equation can also be derived at zero - temperature if we employ a lorentz - type system - bath coupling spectrum .\n" +
+//                            "the set of hierarchy equations derived here provides an exact treatment of decoherence , and employs neither the rotating - wave , born , nor markovian approximations .\n" +
+//                            "we use the hierarchy equation method to study the time - correlation function of the bath of chemical and biophysical systems .\n" +
+//                            "we show that the temperature of qubit devices is a promising method for studying strong- and ultrastrong- coupling physics .\n" +
+//                            "the derivation of the hierarchy are truncated to second order .\n" +
+//                            "high - order correlations are shown to be effective in the single - mode case , of the entire time scale of exponential functions .")
                     .venue(venue)
                     .year(year)
                     .citationCount(citationCount)
