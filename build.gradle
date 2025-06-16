@@ -41,11 +41,7 @@ subprojects {
     }
 
     dependencies {
-        // Hibernate 버전 명시적 고정 (ClearEvent 문제 해결)
-        implementation('org.springframework.boot:spring-boot-starter-data-jpa') {
-            exclude group: 'org.hibernate.orm', module: 'hibernate-core'
-        }
-        implementation 'org.hibernate.orm:hibernate-core:5.6.15.Final'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
         implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
         implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -70,12 +66,6 @@ subprojects {
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.security:spring-security-test'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    }
-
-    configurations.all {
-        resolutionStrategy {
-            force 'org.hibernate.orm:hibernate-core:5.6.15.Final'
-        }
     }
 
     test {
