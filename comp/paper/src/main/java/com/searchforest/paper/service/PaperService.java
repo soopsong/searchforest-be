@@ -26,7 +26,7 @@ public class PaperService {
     private final String aiServerUrl = "http://15.165.143.12:8000/papers";
     private final PaperRepository paperRepository;
 
-    public List<Paper> requestToAIServer(String keyword) {
+    public List<Paper> requestToAIServer(String keyword, String root) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -36,11 +36,13 @@ public class PaperService {
         body.put("page", 1);
         body.put("page_size", 20);
         body.put("include_summary", true);
+        body.put("root", root);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             String url = aiServerUrl + "?kw=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8)
+                    + "&root" + URLEncoder.encode(root, StandardCharsets.UTF_8)
                     + "&page=1&page_size=10";
 
             ResponseEntity<String> response = restTemplate.getForEntity(

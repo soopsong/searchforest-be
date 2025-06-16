@@ -69,16 +69,16 @@ public class KeywordService {
     public void enrichCitationCounts(List<Keyword> keywordList) {
         for (Keyword keyword : keywordList) {
             // Root keyword
-            List<Paper> papersForKeyword = paperService.requestToAIServer(keyword.getText());
+            List<Paper> papersForKeyword = paperService.requestToAIServer(keyword.getText(), keyword.getText());
             keyword.setTotalCitation(sumCitations(papersForKeyword));
 
             // SubKeywords
             for (SubKeyword sub : keyword.getSublist()) {
-                List<Paper> papersForSub = paperService.requestToAIServer(sub.getText());
+                List<Paper> papersForSub = paperService.requestToAIServer(sub.getText(),keyword.getText());
                 sub.setTotalCitation(sumCitations(papersForSub));
 
                 for (LeafKeyword leaf : sub.getSublist()) {
-                    List<Paper> papersForLeaf = paperService.requestToAIServer(leaf.getText());
+                    List<Paper> papersForLeaf = paperService.requestToAIServer(leaf.getText(),keyword.getText());
                     leaf.setTotalCitation(sumCitations(papersForLeaf));
                 }
             }

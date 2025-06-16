@@ -163,7 +163,7 @@ public class UserController {
     public ResponseEntity<List<Paper>> paperSearch(@RequestParam String text) {
 
         // 2. AI 서버 요청
-        List<Paper> aiResults = paperService.requestToAIServer(text);
+        List<Paper> aiResults = paperService.requestToAIServer(text, text);
 
         paperRepository.saveAll(aiResults);
 
