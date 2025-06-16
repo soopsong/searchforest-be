@@ -42,7 +42,7 @@ public class PaperService {
 
         try {
             String url = aiServerUrl + "?kw=" + URLEncoder.encode(keyword, StandardCharsets.UTF_8)
-                    + "&root" + URLEncoder.encode(root, StandardCharsets.UTF_8)
+                    + "&root=" + URLEncoder.encode(root, StandardCharsets.UTF_8)
                     + "&page=1&page_size=10";
 
             ResponseEntity<String> response = restTemplate.getForEntity(
