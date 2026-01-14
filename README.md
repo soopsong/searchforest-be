@@ -67,7 +67,7 @@ reSearchForest는 **Frontend / Backend / AI Server**로 구성된 3-tier 구조�
 
 ---
 
-## 👤 My Role (Backend Developer)
+##  My Role (Backend Developer)
 본 프로젝트에서 백엔드를 단독으로 담당하며, 다음을 수행했습니다.
 
 - **REST API 설계 및 구현**
@@ -88,7 +88,7 @@ reSearchForest는 **Frontend / Backend / AI Server**로 구성된 3-tier 구조�
 
 ---
 
-## 📌 API Overview (Example)
+##  API Overview (Example)
 > 실제 엔드포인트는 프로젝트 구현에 맞게 구성되어 있으며, 아래는 흐름 이해를 위한 예시입니다.
 
 ### Keyword Recommendation
@@ -107,27 +107,3 @@ reSearchForest는 **Frontend / Backend / AI Server**로 구성된 3-tier 구조�
 - 세션 기반 검색 흐름 복원
 
 ---
-
-## ⚙️ How to Run
-> 실행 방법은 환경에 따라 다를 수 있습니다.
-
-### 1) Requirements
-- Java 17
-- MySQL
-- Docker (optional)
-
-### 2) Environment Variables
-`application.yml` 또는 `.env` 기반으로 설정합니다.
-
-예시:
-- `DB_HOST`
-- `DB_PORT`
-- `DB_NAME`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `AI_SERVER_BASE_URL`
-- `JWT_SECRET`
-
-### 3) Run (Local)
-```bash
-./gradlew bootRun
